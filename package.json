@@ -1,5 +1,6 @@
 {
   "name": "preso",
+  "type": "module",
   "version": "1.0.0",
   "description": "A slideshow presentation app with transitions and controls.",
   "engines": {
@@ -14,11 +15,7 @@
     "watch:less": "less-watch-compiler src dist preso_styles.less",
     "watch:ts": "tsc --watch"
   },
-  "dependencies": {
-    "node-vibrant": "^3.1.6"
-  },
   "devDependencies": {
-    "@types/node": "^18.19.87",
     "concurrently": "^8.2.0",
     "http-server": "^14.1.1",
     "less": "^4.2.0",

@@ -1,4 +1,20 @@
-import Vibrant from 'node-vibrant';
+type Vibrant = {
+  from(src: string): {
+    getPalette(): Promise<{
+      Vibrant?: { getHex(): string };
+      Muted?: { getHex(): string };
+      DarkVibrant?: { getHex(): string };
+      LightVibrant?: { getHex(): string };
+      DarkMuted?: { getHex(): string };
+      LightMuted?: { getHex(): string };
+      [key: string]: any;
+    }>;
+  };
+};
+
+declare interface Window {
+  Vibrant: Vibrant;
+}
 
 let currentSlideIndex = 0;
 let slides: HTMLElement[] = [];
@@ -20,9 +36,19 @@ function generateTransitionData(index: number) {
 
 function showSlide(index: number) {
   slides.forEach((slide, i) => {
-    slide.classList.remove('displayed', 'pan-left', 'pan-right', 'pan-up', 'pan-down');
+    slide.classList.remove(
+      'displayed',
+      'pan-left',
+      'pan-right',
+      'pan-up',
+      'pan-down',
+      'zoom-in',
+      'zoom-out'
+    );
+
     if (i === index) {
-      slide.classList.add('displayed');
+      const transitionData = generateTransitionData(index);
+      slide.classList.add('displayed', `pan-${transitionData.introPan}`, `zoom-in`);
     } else if (i < index) {
       slide.classList.add('pan-left');
     } else {
@@ -68,13 +94,12 @@ function initializeControls() {
 
   slides = Array.from(document.querySelectorAll('.slide')) as HTMLElement[];
   showSlide(currentSlideIndex);
+
+  playSlideshow();
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  initializePresentation().then(initializeControls);
-});
-
 async function initializePresentation() {
+  console.log( 'preso initializePresentation...' );
   const link = document.createElement('link');
   link.rel = 'stylesheet';
   link.href = 'preso_styles.css';
@@ -126,9 +151,9 @@ async function initializePresentation() {
 
         img.onload = async () => {
           try {
-            const palette = await Vibrant.from(img.src).getPalette();
-            if (palette.Vibrant) {
-              slideDiv.style.backgroundColor = palette.Vibrant.getHex();
+            const palette = await ( window.Vibrant as Vibrant ).from(img.src).getPalette();
+            if (palette.DarkMuted) {
+              slideDiv.style.backgroundColor = palette.DarkMuted.getHex();
             }
           } catch (err) {
             console.error(`Error extracting colors for image ${img.src}:`, err);
@@ -141,3 +166,16 @@ async function initializePresentation() {
     });
   }
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+  const vibrantScript = document.createElement('script');
+  vibrantScript.onload = () => initializePresentation().then(initializeControls);
+  vibrantScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/node-vibrant/3.1.6/vibrant.min.js';
+  vibrantScript.async = true;
+
+  vibrantScript.onerror = () => {
+    console.error('Failed to load the Vibrant library.');
+  };
+
+  document.head.appendChild(vibrantScript);
+});

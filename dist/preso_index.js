@@ -35,11 +35,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-var node_vibrant_1 = __importDefault(require("node-vibrant"));
 var currentSlideIndex = 0;
 var slides = [];
 var intervalId = null;
@@ -57,9 +52,10 @@ function generateTransitionData(index) {
 }
 function showSlide(index) {
     slides.forEach(function (slide, i) {
-        slide.classList.remove('displayed', 'pan-left', 'pan-right', 'pan-up', 'pan-down');
+        slide.classList.remove('displayed', 'pan-left', 'pan-right', 'pan-up', 'pan-down', 'zoom-in', 'zoom-out');
         if (i === index) {
-            slide.classList.add('displayed');
+            var transitionData = generateTransitionData(index);
+            slide.classList.add('displayed', "pan-".concat(transitionData.introPan), "zoom-in");
         }
         else if (i < index) {
             slide.classList.add('pan-left');
@@ -100,10 +96,8 @@ function initializeControls() {
     btnPrev.addEventListener('click', prevSlide);
     slides = Array.from(document.querySelectorAll('.slide'));
     showSlide(currentSlideIndex);
+    playSlideshow();
 }
-document.addEventListener('DOMContentLoaded', function () {
-    initializePresentation().then(initializeControls);
-});
 function initializePresentation() {
     return __awaiter(this, void 0, void 0, function () {
         var link, response, data, stage, chrome, description, toggleDescription, durationTransition_1;
@@ -112,6 +106,7 @@ function initializePresentation() {
         return __generator(this, function (_d) {
             switch (_d.label) {
                 case 0:
+                    console.log('preso initializePresentation...');
                     link = document.createElement('link');
                     link.rel = 'stylesheet';
                     link.href = 'preso_styles.css';
@@ -159,11 +154,11 @@ function initializePresentation() {
                                         switch (_a.label) {
                                             case 0:
                                                 _a.trys.push([0, 2, , 3]);
-                                                return [4 /*yield*/, node_vibrant_1.default.from(img_1.src).getPalette()];
+                                                return [4 /*yield*/, window.Vibrant.from(img_1.src).getPalette()];
                                             case 1:
                                                 palette = _a.sent();
-                                                if (palette.Vibrant) {
-                                                    slideDiv_1.style.backgroundColor = palette.Vibrant.getHex();
+                                                if (palette.DarkMuted) {
+                                                    slideDiv_1.style.backgroundColor = palette.DarkMuted.getHex();
                                                 }
                                                 return [3 /*break*/, 3];
                                             case 2:
@@ -184,3 +179,13 @@ function initializePresentation() {
         });
     });
 }
+document.addEventListener('DOMContentLoaded', function () {
+    var vibrantScript = document.createElement('script');
+    vibrantScript.onload = function () { return initializePresentation().then(initializeControls); };
+    vibrantScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/node-vibrant/3.1.6/vibrant.min.js';
+    vibrantScript.async = true;
+    vibrantScript.onerror = function () {
+        console.error('Failed to load the Vibrant library.');
+    };
+    document.head.appendChild(vibrantScript);
+});
