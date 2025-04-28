@@ -47,7 +47,6 @@ function generateTransitionData(index) {
     return {
         introPan: introDirection,
         outroPan: outroDirection,
-        reversePan: outroDirection, // Reverse when returning to the slide
         zoomLevel: Math.random() * 0.5 + 1 // Random zoom between 1x and 1.5x
     };
 }
@@ -113,7 +112,6 @@ function initializeControls() {
 function initializePresentation() {
     return __awaiter(this, void 0, void 0, function () {
         var link, response, data, stage, chrome, description, btnToggleDescription, durationTransition_1;
-        var _this = this;
         var _a, _b, _c;
         return __generator(this, function (_d) {
             switch (_d.label) {
@@ -159,35 +157,26 @@ function initializePresentation() {
                             var transitionData = generateTransitionData(index);
                             Object.assign(slide, transitionData);
                             if (slide.type === 'img') {
-                                var slideDiv_1 = document.createElement('div');
-                                slideDiv_1.className = 'slide';
-                                slideDiv_1.style.transitionDuration = durationTransition_1;
-                                var img_1 = document.createElement('img');
-                                img_1.src = slide.src;
-                                img_1.alt = slide.title || '';
-                                img_1.onload = function () { return __awaiter(_this, void 0, void 0, function () {
-                                    var palette, err_1;
-                                    return __generator(this, function (_a) {
-                                        switch (_a.label) {
-                                            case 0:
-                                                _a.trys.push([0, 2, , 3]);
-                                                return [4 /*yield*/, window.Vibrant.from(img_1.src).getPalette()];
-                                            case 1:
-                                                palette = _a.sent();
-                                                if (palette.Muted) {
-                                                    slideDiv_1.style.backgroundColor = palette.Muted.getHex();
-                                                }
-                                                return [3 /*break*/, 3];
-                                            case 2:
-                                                err_1 = _a.sent();
-                                                console.error("Error extracting colors for image ".concat(img_1.src, ":"), err_1);
-                                                return [3 /*break*/, 3];
-                                            case 3: return [2 /*return*/];
-                                        }
-                                    });
-                                }); };
-                                slideDiv_1.appendChild(img_1);
-                                stage.appendChild(slideDiv_1);
+                                var slideDiv = document.createElement('div');
+                                slideDiv.className = 'slide';
+                                slideDiv.style.transitionDuration = durationTransition_1;
+                                var img = document.createElement('img');
+                                img.src = slide.src;
+                                img.alt = slide.title || '';
+                                /*
+                                img.onload = async () => {
+                                  try {
+                                    const palette = await ( window.Vibrant as Vibrant ).from(img.src).getPalette();
+                                    if (palette.Muted) {
+                                      slideDiv.style.backgroundColor = palette.Muted.getHex();
+                                    }
+                                  } catch (err) {
+                                    console.error(`Error extracting colors for image ${img.src}:`, err);
+                                  }
+                                };
+                                */
+                                slideDiv.appendChild(img);
+                                stage.appendChild(slideDiv);
                             }
                         });
                     }
@@ -198,12 +187,17 @@ function initializePresentation() {
     });
 }
 document.addEventListener('DOMContentLoaded', function () {
-    var vibrantScript = document.createElement('script');
-    vibrantScript.onload = function () { return initializePresentation().then(initializeControls); };
+    /*
+    const vibrantScript = document.createElement('script');
+    vibrantScript.onload = () => initializePresentation().then(initializeControls);
     vibrantScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/node-vibrant/3.1.6/vibrant.min.js';
     vibrantScript.async = true;
-    vibrantScript.onerror = function () {
-        console.error('Failed to load the Vibrant library.');
+  
+    vibrantScript.onerror = () => {
+      console.error('Failed to load the Vibrant library.');
     };
+  
     document.head.appendChild(vibrantScript);
+     */
+    initializePresentation().then(initializeControls);
 });

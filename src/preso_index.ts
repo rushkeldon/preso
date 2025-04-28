@@ -30,7 +30,6 @@ function generateTransitionData(index: number) {
   return {
     introPan: introDirection,
     outroPan: outroDirection,
-    reversePan: outroDirection, // Reverse when returning to the slide
     zoomLevel: Math.random() * 0.5 + 1 // Random zoom between 1x and 1.5x
   };
 }
@@ -167,6 +166,7 @@ async function initializePresentation() {
         img.src = slide.src;
         img.alt = slide.title || '';
 
+        /*
         img.onload = async () => {
           try {
             const palette = await ( window.Vibrant as Vibrant ).from(img.src).getPalette();
@@ -177,6 +177,7 @@ async function initializePresentation() {
             console.error(`Error extracting colors for image ${img.src}:`, err);
           }
         };
+        */
 
         slideDiv.appendChild(img);
         stage.appendChild(slideDiv);
@@ -188,6 +189,7 @@ async function initializePresentation() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  /*
   const vibrantScript = document.createElement('script');
   vibrantScript.onload = () => initializePresentation().then(initializeControls);
   vibrantScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/node-vibrant/3.1.6/vibrant.min.js';
@@ -198,4 +200,6 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   document.head.appendChild(vibrantScript);
+   */
+  initializePresentation().then(initializeControls);
 });
