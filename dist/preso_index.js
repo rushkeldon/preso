@@ -59,6 +59,8 @@ var slideDivs = [];
 var intervalId;
 var durationSlide = 5000;
 var presoData;
+var trashBin;
+var slideBuffer = 3;
 function generateTransitionData(index) {
     var directions = ['left', 'right', 'up', 'down'];
     var introDirection = directions[index % directions.length];
@@ -74,16 +76,11 @@ function displaySlide(index) {
     var descriptionDiv = document.querySelector('.description');
     descriptionDiv.innerHTML = ((_b = (_a = presoData === null || presoData === void 0 ? void 0 : presoData.slides) === null || _a === void 0 ? void 0 : _a[index]) === null || _b === void 0 ? void 0 : _b.description) || '';
     slideDivs.forEach(function (slide, i) {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j;
+        var _a, _b, _c;
         slide.classList.remove('displayed', 'pan-left', 'pan-right', 'pan-up', 'pan-down', 'zoom-in', 'zoom-out');
         switch (true) {
             case i === index:
-                var transitionData = {
-                    introPan: (_c = (_b = (_a = presoData === null || presoData === void 0 ? void 0 : presoData.slides) === null || _a === void 0 ? void 0 : _a[index]) === null || _b === void 0 ? void 0 : _b.introPan) !== null && _c !== void 0 ? _c : 'left',
-                    outroPan: (_f = (_e = (_d = presoData === null || presoData === void 0 ? void 0 : presoData.slides) === null || _d === void 0 ? void 0 : _d[index]) === null || _e === void 0 ? void 0 : _e.outroPan) !== null && _f !== void 0 ? _f : 'up',
-                    zoomLevel: (_j = (_h = (_g = presoData === null || presoData === void 0 ? void 0 : presoData.slides) === null || _g === void 0 ? void 0 : _g[index]) === null || _h === void 0 ? void 0 : _h.zoomLevel) !== null && _j !== void 0 ? _j : 1.4
-                };
-                slide.classList.add('displayed', "pan-".concat(transitionData.introPan), "zoom-in");
+                slide.classList.add('displayed', "pan-".concat((_c = (_b = (_a = presoData === null || presoData === void 0 ? void 0 : presoData.slides) === null || _a === void 0 ? void 0 : _a[index]) === null || _b === void 0 ? void 0 : _b.introPan) !== null && _c !== void 0 ? _c : 'left'), "zoom-in");
                 break;
             case i < index:
                 slide.classList.add('pan-left', 'zoom-out');
@@ -92,15 +89,24 @@ function displaySlide(index) {
                 slide.classList.add('pan-right', 'zoom-out');
         }
     });
+    preCacheAndGarbageCollect(index);
+}
+function preCacheAndGarbageCollect(index) {
+    slideDivs.forEach(function (slideDiv, i) {
+        if (i < index - slideBuffer || i > index + slideBuffer) {
+            unloadSlideImage(i);
+        }
+        else if (!slideDiv.querySelector('img')) {
+            loadSlideImage(i);
+        }
+    });
 }
 function nextSlide() {
     currentSlideIndex = (currentSlideIndex + 1) % slideDivs.length;
-    console.log('nextSlide called - currentSlideIndex :', currentSlideIndex);
     displaySlide(currentSlideIndex);
 }
 function prevSlide() {
     currentSlideIndex = (currentSlideIndex - 1 + slideDivs.length) % slideDivs.length;
-    console.log('prevSlide called - currentSlideIndex :', currentSlideIndex);
     displaySlide(currentSlideIndex);
 }
 function playSlideshow() {
@@ -131,7 +137,6 @@ function initializeControls() {
     btnPlay.addEventListener('click', playSlideshow);
     btnPause.addEventListener('click', pauseSlideshow);
     btnNext.addEventListener('click', function () { return nextSlide(); });
-    slideDivs = Array.from(document.querySelectorAll('.slide'));
     displaySlide(currentSlideIndex);
     playSlideshow();
 }
@@ -142,7 +147,6 @@ function initializePresentation() {
         return __generator(this, function (_d) {
             switch (_d.label) {
                 case 0:
-                    console.log('preso initializePresentation...');
                     link = document.createElement('link');
                     link.rel = 'stylesheet';
                     link.href = 'preso_styles.css';
@@ -182,36 +186,62 @@ function initializePresentation() {
                         data.slides.forEach(function (slide, index) {
                             var transitionData = generateTransitionData(index);
                             Object.assign(slide, transitionData);
-                            if (slide.type === 'img') {
-                                var slideDiv = document.createElement('div');
-                                slideDiv.setAttribute('data-index', index.toString());
-                                slideDiv.className = 'slide';
-                                slideDiv.style.transitionDuration = durationTransition_1;
-                                var img = document.createElement('img');
-                                img.src = slide.src;
-                                img.alt = slide.title || '';
-                                /*
-                                img.onload = async () => {
-                                  try {
-                                    const palette = await ( window.Vibrant as Vibrant ).from(img.src).getPalette();
-                                    if (palette.Muted) {
-                                      slideDiv.style.backgroundColor = palette.Muted.getHex();
-                                    }
-                                  } catch (err) {
-                                    console.error(`Error extracting colors for image ${img.src}:`, err);
-                                  }
-                                };
-                                */
-                                slideDiv.appendChild(img);
-                                stage.appendChild(slideDiv);
-                            }
+                            var slideDiv = document.createElement('div');
+                            slideDiv.setAttribute('data-index', index.toString());
+                            slideDiv.className = 'slide';
+                            slideDiv.style.transitionDuration = durationTransition_1;
+                            stage.appendChild(slideDiv);
+                            slideDivs.push(slideDiv);
+                            // load the first 4
+                            if (slide.type === 'img' && index < 4)
+                                loadSlideImage(index);
                         });
                     }
-                    console.log('data :', data);
+                    trashBin = document.createElement('div');
                     return [2 /*return*/];
             }
         });
     });
+}
+function loadSlideImage(index) {
+    var _a;
+    if (isNaN(index))
+        return;
+    var slideDiv = slideDivs[index];
+    if (!slideDiv)
+        return;
+    var img = slideDiv.querySelector('img');
+    if (!img) {
+        var slide = presoData.slides[index];
+        img = document.createElement('img');
+        img.src = slide.src;
+        img.alt = (_a = slide === null || slide === void 0 ? void 0 : slide.title) !== null && _a !== void 0 ? _a : '';
+        /* // consider bringing back the vibrant implementation later...
+        img.onload = async () => {
+          try {
+            const palette = await ( window.Vibrant as Vibrant ).from(img.src).getPalette();
+            if (palette.Muted) {
+              slideDiv.style.backgroundColor = palette.Muted.getHex();
+            }
+          } catch (err) {
+            console.error(`Error extracting colors for image ${img.src}:`, err);
+          }
+        };
+        */
+        slideDiv.appendChild(img);
+    }
+}
+function unloadSlideImage(index) {
+    if (isNaN(index))
+        return;
+    var slideDiv = slideDivs[index];
+    if (!slideDiv)
+        return;
+    var img = slideDiv === null || slideDiv === void 0 ? void 0 : slideDiv.querySelector('img');
+    if (img) {
+        trashBin.appendChild(img);
+        trashBin.innerHTML = '';
+    }
 }
 document.addEventListener('DOMContentLoaded', function () {
     /*
