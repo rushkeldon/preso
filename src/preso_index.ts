@@ -1,4 +1,10 @@
-// Function to generate transition data
+import Vibrant from 'node-vibrant';
+
+let currentSlideIndex = 0;
+let slides: HTMLElement[] = [];
+let intervalId: number | null = null;
+let durationSlide = 5000;
+
 function generateTransitionData(index: number) {
   const directions = ['left', 'right', 'up', 'down'];
   const introDirection = directions[index % directions.length]; // Cycle through directions
@@ -12,11 +18,6 @@ function generateTransitionData(index: number) {
   };
 }
 
-let currentSlideIndex = 0;
-let slides: HTMLElement[] = [];
-let intervalId: number | null = null;
-
-// Function to show a specific slide
 function showSlide(index: number) {
   slides.forEach((slide, i) => {
     slide.classList.remove('displayed', 'pan-left', 'pan-right', 'pan-up', 'pan-down');
@@ -30,26 +31,23 @@ function showSlide(index: number) {
   });
 }
 
-// Function to go to the next slide
 function nextSlide() {
   currentSlideIndex = (currentSlideIndex + 1) % slides.length;
   showSlide(currentSlideIndex);
 }
 
-// Function to go to the previous slide
 function prevSlide() {
   currentSlideIndex = (currentSlideIndex - 1 + slides.length) % slides.length;
   showSlide(currentSlideIndex);
 }
 
-// Function to start the slideshow
 function playSlideshow() {
   if (!intervalId) {
-    intervalId = setInterval(nextSlide, 5000); // Change slide every 5 seconds
+    // TODO : this needs to be dynamic as read from the JSON file
+    intervalId = Number( setInterval( nextSlide, durationSlide ) );
   }
 }
 
-// Function to pause the slideshow
 function pauseSlideshow() {
   if (intervalId) {
     clearInterval(intervalId);
@@ -57,7 +55,6 @@ function pauseSlideshow() {
   }
 }
 
-// Initialize buttons and slides
 function initializeControls() {
   const btnPlay = document.querySelector('.btnPlay') as HTMLElement;
   const btnPause = document.querySelector('.btnPause') as HTMLElement;
@@ -73,34 +70,26 @@ function initializeControls() {
   showSlide(currentSlideIndex);
 }
 
-// Call initialization after DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
   initializePresentation().then(initializeControls);
 });
 
-// Load the JSON file and initialize the presentation
 async function initializePresentation() {
-  // Add the CSS link dynamically
   const link = document.createElement('link');
   link.rel = 'stylesheet';
   link.href = 'preso_styles.css';
   document.head.appendChild(link);
 
-  // Fetch the JSON file
   const response = await fetch('preso_index.json');
   const data = await response.json();
 
-  // Update the document title
-  if (data.config && data.config.title) {
-    document.title = data.config.title;
-  }
+  data?.config?.title && ( document.title = data.config.title );
+  data?.config?.durationSlide && ( durationSlide = data.config.durationSlide );
 
-  // Create the stage element
   const stage = document.createElement('div');
   stage.className = 'stage';
   document.body.appendChild(stage);
 
-  // Add the chrome controls
   const chrome = document.createElement('div');
   chrome.className = 'chrome';
   stage.appendChild(chrome);
@@ -111,7 +100,6 @@ async function initializePresentation() {
     chrome.appendChild(button);
   });
 
-  // Add the description section
   const description = document.createElement('div');
   description.className = 'description';
   stage.appendChild(description);
@@ -120,12 +108,10 @@ async function initializePresentation() {
   toggleDescription.className = 'btnToggleDescription';
   description.appendChild(toggleDescription);
 
-  // Add slides and augment with transition data
   if (data.slides && Array.isArray(data.slides)) {
     const durationTransition = data.config?.durationTransition || '1s';
 
     data.slides.forEach((slide: any, index: number) => {
-      // Augment slide with transition data
       const transitionData = generateTransitionData(index);
       Object.assign(slide, transitionData);
 
@@ -137,12 +123,21 @@ async function initializePresentation() {
         const img = document.createElement('img');
         img.src = slide.src;
         img.alt = slide.title || '';
-        slideDiv.appendChild(img);
 
+        img.onload = async () => {
+          try {
+            const palette = await Vibrant.from(img.src).getPalette();
+            if (palette.Vibrant) {
+              slideDiv.style.backgroundColor = palette.Vibrant.getHex();
+            }
+          } catch (err) {
+            console.error(`Error extracting colors for image ${img.src}:`, err);
+          }
+        };
+
+        slideDiv.appendChild(img);
         stage.appendChild(slideDiv);
       }
     });
   }
-
-  // TODO: Implement slide transitions and button functionality
 }

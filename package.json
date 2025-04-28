@@ -2,8 +2,11 @@
   "name": "preso",
   "version": "1.0.0",
   "description": "A slideshow presentation app with transitions and controls.",
+  "engines": {
+    "node": "18.20.5"
+  },
   "scripts": {
-    "build": "npm run build:less && npm run build:ts",
+    "build": "rm -rf dist && mkdir dist && cp -r public/* dist/ && npm run build:less && npm run build:ts",
     "build:less": "lessc src/preso_styles.less dist/preso_styles.css",
     "build:ts": "tsc",
     "start": "npm run build && http-server dist -o",
@@ -11,13 +14,16 @@
     "watch:less": "less-watch-compiler src dist preso_styles.less",
     "watch:ts": "tsc --watch"
   },
-  "dependencies": {},
+  "dependencies": {
+    "node-vibrant": "^3.1.6"
+  },
   "devDependencies": {
-    "typescript": "^5.2.2",
+    "@types/node": "^18.19.87",
+    "concurrently": "^8.2.0",
+    "http-server": "^14.1.1",
     "less": "^4.2.0",
     "less-watch-compiler": "^1.16.0",
-    "http-server": "^14.1.1",
-    "concurrently": "^8.2.0"
+    "typescript": "^5.2.2"
   },
   "author": "Keldon Rush",
   "license": "MIT"

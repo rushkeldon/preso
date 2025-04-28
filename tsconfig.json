@@ -1,12 +1,12 @@
 {
     "compilerOptions": {
         "target": "ES5",
-        "lib": ["ES2015", "DOM"],
+        "lib": [ "DOM", "ESNext" ],
         "module": "commonjs",
         "strict": true,
         "esModuleInterop": true,
         "outDir": "./dist"
     },
-    "include": ["src/**/*.ts"],
-    "exclude": ["node_modules"]
+    "include": [ "src/**/*.ts" ],
+    "exclude": [ "node_modules" ]
 }
