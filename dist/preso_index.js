@@ -1,4 +1,23 @@
 "use strict";
+/*
+type Vibrant = {
+  from(src: string): {
+    getPalette(): Promise<{
+      Vibrant?: { getHex(): string };
+      Muted?: { getHex(): string };
+      DarkVibrant?: { getHex(): string };
+      LightVibrant?: { getHex(): string };
+      DarkMuted?: { getHex(): string };
+      LightMuted?: { getHex(): string };
+      [key: string]: any;
+    }>;
+  };
+};
+
+declare interface Window {
+  Vibrant: Vibrant;
+}
+*/
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -36,10 +55,10 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 var currentSlideIndex = 0;
-var slides = [];
-var intervalId = null;
+var slideDivs = [];
+var intervalId;
 var durationSlide = 5000;
-var presoData = null;
+var presoData;
 function generateTransitionData(index) {
     var directions = ['left', 'right', 'up', 'down'];
     var introDirection = directions[index % directions.length];
@@ -54,11 +73,16 @@ function displaySlide(index) {
     var _a, _b;
     var descriptionDiv = document.querySelector('.description');
     descriptionDiv.innerHTML = ((_b = (_a = presoData === null || presoData === void 0 ? void 0 : presoData.slides) === null || _a === void 0 ? void 0 : _a[index]) === null || _b === void 0 ? void 0 : _b.description) || '';
-    slides.forEach(function (slide, i) {
+    slideDivs.forEach(function (slide, i) {
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j;
         slide.classList.remove('displayed', 'pan-left', 'pan-right', 'pan-up', 'pan-down', 'zoom-in', 'zoom-out');
         switch (true) {
             case i === index:
-                var transitionData = generateTransitionData(index);
+                var transitionData = {
+                    introPan: (_c = (_b = (_a = presoData === null || presoData === void 0 ? void 0 : presoData.slides) === null || _a === void 0 ? void 0 : _a[index]) === null || _b === void 0 ? void 0 : _b.introPan) !== null && _c !== void 0 ? _c : 'left',
+                    outroPan: (_f = (_e = (_d = presoData === null || presoData === void 0 ? void 0 : presoData.slides) === null || _d === void 0 ? void 0 : _d[index]) === null || _e === void 0 ? void 0 : _e.outroPan) !== null && _f !== void 0 ? _f : 'up',
+                    zoomLevel: (_j = (_h = (_g = presoData === null || presoData === void 0 ? void 0 : presoData.slides) === null || _g === void 0 ? void 0 : _g[index]) === null || _h === void 0 ? void 0 : _h.zoomLevel) !== null && _j !== void 0 ? _j : 1.4
+                };
                 slide.classList.add('displayed', "pan-".concat(transitionData.introPan), "zoom-in");
                 break;
             case i < index:
@@ -70,11 +94,13 @@ function displaySlide(index) {
     });
 }
 function nextSlide() {
-    currentSlideIndex = (currentSlideIndex + 1) % slides.length;
+    currentSlideIndex = (currentSlideIndex + 1) % slideDivs.length;
+    console.log('nextSlide called - currentSlideIndex :', currentSlideIndex);
     displaySlide(currentSlideIndex);
 }
 function prevSlide() {
-    currentSlideIndex = (currentSlideIndex - 1 + slides.length) % slides.length;
+    currentSlideIndex = (currentSlideIndex - 1 + slideDivs.length) % slideDivs.length;
+    console.log('prevSlide called - currentSlideIndex :', currentSlideIndex);
     displaySlide(currentSlideIndex);
 }
 function playSlideshow() {
@@ -93,7 +119,7 @@ function pauseSlideshow() {
     btnPlay.classList.add('displayed');
     if (intervalId) {
         clearInterval(intervalId);
-        intervalId = null;
+        intervalId = 0;
     }
 }
 function initializeControls() {
@@ -101,11 +127,11 @@ function initializeControls() {
     var btnPause = document.querySelector('.btnPause');
     var btnNext = document.querySelector('.btnNext');
     var btnPrev = document.querySelector('.btnPrev');
-    btnPrev.addEventListener('click', prevSlide);
+    btnPrev.addEventListener('click', function () { return prevSlide(); });
     btnPlay.addEventListener('click', playSlideshow);
     btnPause.addEventListener('click', pauseSlideshow);
-    btnNext.addEventListener('click', nextSlide);
-    slides = Array.from(document.querySelectorAll('.slide'));
+    btnNext.addEventListener('click', function () { return nextSlide(); });
+    slideDivs = Array.from(document.querySelectorAll('.slide'));
     displaySlide(currentSlideIndex);
     playSlideshow();
 }
@@ -158,6 +184,7 @@ function initializePresentation() {
                             Object.assign(slide, transitionData);
                             if (slide.type === 'img') {
                                 var slideDiv = document.createElement('div');
+                                slideDiv.setAttribute('data-index', index.toString());
                                 slideDiv.className = 'slide';
                                 slideDiv.style.transitionDuration = durationTransition_1;
                                 var img = document.createElement('img');

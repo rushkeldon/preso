@@ -1,3 +1,4 @@
+/*
 type Vibrant = {
   from(src: string): {
     getPalette(): Promise<{
@@ -15,14 +16,42 @@ type Vibrant = {
 declare interface Window {
   Vibrant: Vibrant;
 }
+*/
+
+type Slide = {
+  description: string;
+  src: string;
+  title: string;
+  type: 'img'; // might extend later
+  introPan: string;
+  outroPan: string;
+  zoomLevel: number;
+}
+
+type SlideTransitionData = {
+  introPan: string;
+  outroPan: string;
+  zoomLevel: number;
+}
+
+type PresoData = {
+  config: {
+    title : string;
+    description : string;
+    author : string;
+    durationView : string;
+    durationTransition : string;
+  };
+  slides: Slide[];
+}
 
 let currentSlideIndex = 0;
-let slides: HTMLElement[] = [];
-let intervalId: number | null = null;
+let slideDivs: HTMLDivElement[] = [];
+let intervalId: number;
 let durationSlide = 5000;
-let presoData : any = null;
+let presoData : PresoData;
 
-function generateTransitionData(index: number) {
+function generateTransitionData(index: number) : SlideTransitionData {
   const directions = ['left', 'right', 'up', 'down'];
   const introDirection = directions[index % directions.length];
   const outroDirection = directions[(index + 2) % directions.length];
@@ -37,7 +66,7 @@ function generateTransitionData(index: number) {
 function displaySlide(index: number) {
   const descriptionDiv = document.querySelector('.description') as HTMLDivElement;
   descriptionDiv.innerHTML = presoData?.slides?.[index]?.description || '';
-  slides.forEach((slide, i) => {
+  slideDivs.forEach((slide, i) => {
     slide.classList.remove(
       'displayed',
       'pan-left',
@@ -50,7 +79,11 @@ function displaySlide(index: number) {
 
     switch( true ) {
       case i === index :
-        const transitionData = generateTransitionData(index);
+        const transitionData : SlideTransitionData = {
+          introPan : presoData?.slides?.[index]?.introPan ?? 'left',
+          outroPan : presoData?.slides?.[index]?.outroPan ?? 'up',
+          zoomLevel : presoData?.slides?.[index]?.zoomLevel ?? 1.4
+        }
         slide.classList.add('displayed', `pan-${transitionData.introPan}`, `zoom-in`);
         break;
       case i < index :
@@ -63,12 +96,16 @@ function displaySlide(index: number) {
 }
 
 function nextSlide() {
-  currentSlideIndex = (currentSlideIndex + 1) % slides.length;
+  currentSlideIndex = (currentSlideIndex + 1) % slideDivs.length;
+  console.log( 'nextSlide called - currentSlideIndex :', currentSlideIndex );
+
   displaySlide(currentSlideIndex);
 }
 
 function prevSlide() {
-  currentSlideIndex = (currentSlideIndex - 1 + slides.length) % slides.length;
+  currentSlideIndex = (currentSlideIndex - 1 + slideDivs.length) % slideDivs.length;
+  console.log( 'prevSlide called - currentSlideIndex :', currentSlideIndex );
+
   displaySlide(currentSlideIndex);
 }
 
@@ -89,7 +126,7 @@ function pauseSlideshow() {
   btnPlay.classList.add( 'displayed' );
   if (intervalId) {
     clearInterval(intervalId);
-    intervalId = null;
+    intervalId = 0;
   }
 }
 
@@ -99,12 +136,12 @@ function initializeControls() {
   const btnNext = document.querySelector('.btnNext') as HTMLElement;
   const btnPrev = document.querySelector('.btnPrev') as HTMLElement;
 
-  btnPrev.addEventListener('click', prevSlide);
+  btnPrev.addEventListener('click', () => prevSlide() );
   btnPlay.addEventListener('click', playSlideshow);
   btnPause.addEventListener('click', pauseSlideshow);
-  btnNext.addEventListener('click', nextSlide);
+  btnNext.addEventListener('click', () => nextSlide() );
 
-  slides = Array.from(document.querySelectorAll('.slide')) as HTMLElement[];
+  slideDivs = Array.from(document.querySelectorAll('.slide')) as HTMLDivElement[];
   displaySlide(currentSlideIndex);
 
   playSlideshow();
@@ -159,6 +196,7 @@ async function initializePresentation() {
 
       if (slide.type === 'img') {
         const slideDiv = document.createElement('div');
+        slideDiv.setAttribute('data-index', index.toString());
         slideDiv.className = 'slide';
         slideDiv.style.transitionDuration = durationTransition;
 

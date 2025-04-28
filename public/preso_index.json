@@ -957,12 +957,6 @@
         },
         {
             "type" : "img",
-            "src" : "img/japan_157.mp4",
-            "title" : "title",
-            "description" : "description"
-        },
-        {
-            "type" : "img",
             "src" : "img/japan_158.jpg",
             "title" : "title",
             "description" : "description"
@@ -1198,12 +1192,6 @@
         {
             "type" : "img",
             "src" : "img/japan_197.jpg",
-            "title" : "title",
-            "description" : "description"
-        },
-        {
-            "type" : "img",
-            "src" : "img/japan_198.mp4",
             "title" : "title",
             "description" : "description"
         },
