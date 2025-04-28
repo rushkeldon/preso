@@ -1,0 +1,124 @@
+.stage {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  background-color: #000;
+
+  .slide {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: grid;
+    place-items: center;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+
+    img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: cover;
+    }
+
+    &.pan-left {
+      transform: translateX(-100%);
+    }
+
+    &.pan-right {
+      transform: translateX(100%);
+    }
+
+    &.pan-up {
+      transform: translateY(-100%);
+    }
+
+    &.pan-down {
+      transform: translateY(100%);
+    }
+
+    &.zoom-in {
+      transform: scale(1.5);
+    }
+
+    &.zoom-out {
+      transform: scale(0.5);
+    }
+
+    &.displayed {
+      transform: translateX(0) scale(1);
+      opacity: 1;
+    }
+  }
+
+  .chrome {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: grid;
+    grid-auto-flow: column;
+    gap: 10px;
+
+    div {
+      width: 40px;
+      height: 40px;
+      background-color: rgba(255, 255, 255, 0.8);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      transition: background-color 0.3s;
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 1);
+      }
+    }
+  }
+
+  .description {
+    position: absolute;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    text-align: center;
+    font-size: 1rem;
+    border-radius: 5px;
+    transition: opacity 0.3s ease-in-out;
+    opacity: 0;
+
+    &.displayed {
+      opacity: 1;
+    }
+  }
+
+  .btnToggleDescription {
+    position: absolute;
+    bottom: 110px;
+    right: 10px;
+    width: 20px;
+    height: 20px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    cursor: pointer;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 1);
+    }
+    &:before {
+      content: '^';
+      font-weight: 700;
+      font-size: 16px;
+      color: #000;
+    }
+
+    &.displayed {
+      &:before {
+        content: '×';
+      }
+    }
+  }
+}
