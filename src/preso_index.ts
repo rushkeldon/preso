@@ -1,4 +1,4 @@
-/*
+
 type Vibrant = {
   from(src: string): {
     getPalette(): Promise<{
@@ -16,7 +16,7 @@ type Vibrant = {
 declare interface Window {
   Vibrant: Vibrant;
 }
-*/
+/**/
 
 type Slide = {
   description : string;
@@ -225,8 +225,9 @@ function loadSlideImage( index : number ) {
     img.src = slide.src;
     img.alt = slide?.title ?? '';
 
-    /* // consider bringing back the vibrant implementation later...
+    // consider bringing back the vibrant implementation later...
     img.onload = async () => {
+      if( !img ) return;
       try {
         const palette = await ( window.Vibrant as Vibrant ).from(img.src).getPalette();
         if (palette.Muted) {
@@ -236,7 +237,7 @@ function loadSlideImage( index : number ) {
         console.error(`Error extracting colors for image ${img.src}:`, err);
       }
     };
-    */
+    /* */
     slideDiv.appendChild( img );
   }
 }
@@ -254,7 +255,7 @@ function unloadSlideImage( index : number ) {
 }
 
 document.addEventListener( 'DOMContentLoaded', () => {
-  /*
+
   const vibrantScript = document.createElement('script');
   vibrantScript.onload = () => initializePresentation().then(initializeControls);
   vibrantScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/node-vibrant/3.1.6/vibrant.min.js';
@@ -265,6 +266,6 @@ document.addEventListener( 'DOMContentLoaded', () => {
   };
 
   document.head.appendChild(vibrantScript);
-   */
-  initializePresentation().then( initializeControls );
+
+  /* initializePresentation().then( initializeControls ); */
 } );
