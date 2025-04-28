@@ -152,8 +152,8 @@ async function initializePresentation() {
         img.onload = async () => {
           try {
             const palette = await ( window.Vibrant as Vibrant ).from(img.src).getPalette();
-            if (palette.DarkMuted) {
-              slideDiv.style.backgroundColor = palette.DarkMuted.getHex();
+            if (palette.Muted) {
+              slideDiv.style.backgroundColor = palette.Muted.getHex();
             }
           } catch (err) {
             console.error(`Error extracting colors for image ${img.src}:`, err);

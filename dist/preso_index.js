@@ -157,8 +157,8 @@ function initializePresentation() {
                                                 return [4 /*yield*/, window.Vibrant.from(img_1.src).getPalette()];
                                             case 1:
                                                 palette = _a.sent();
-                                                if (palette.DarkMuted) {
-                                                    slideDiv_1.style.backgroundColor = palette.DarkMuted.getHex();
+                                                if (palette.Muted) {
+                                                    slideDiv_1.style.backgroundColor = palette.Muted.getHex();
                                                 }
                                                 return [3 /*break*/, 3];
                                             case 2:
