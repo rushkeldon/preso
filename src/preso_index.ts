@@ -20,11 +20,12 @@ let currentSlideIndex = 0;
 let slides: HTMLElement[] = [];
 let intervalId: number | null = null;
 let durationSlide = 5000;
+let presoData : any = null;
 
 function generateTransitionData(index: number) {
   const directions = ['left', 'right', 'up', 'down'];
-  const introDirection = directions[index % directions.length]; // Cycle through directions
-  const outroDirection = directions[(index + 2) % directions.length]; // Opposite direction
+  const introDirection = directions[index % directions.length];
+  const outroDirection = directions[(index + 2) % directions.length];
 
   return {
     introPan: introDirection,
@@ -34,7 +35,9 @@ function generateTransitionData(index: number) {
   };
 }
 
-function showSlide(index: number) {
+function displaySlide(index: number) {
+  const descriptionDiv = document.querySelector('.description') as HTMLDivElement;
+  descriptionDiv.innerHTML = presoData?.slides?.[index]?.description || '';
   slides.forEach((slide, i) => {
     slide.classList.remove(
       'displayed',
@@ -46,35 +49,45 @@ function showSlide(index: number) {
       'zoom-out'
     );
 
-    if (i === index) {
-      const transitionData = generateTransitionData(index);
-      slide.classList.add('displayed', `pan-${transitionData.introPan}`, `zoom-in`);
-    } else if (i < index) {
-      slide.classList.add('pan-left');
-    } else {
-      slide.classList.add('pan-right');
+    switch( true ) {
+      case i === index :
+        const transitionData = generateTransitionData(index);
+        slide.classList.add('displayed', `pan-${transitionData.introPan}`, `zoom-in`);
+        break;
+      case i < index :
+        slide.classList.add('pan-left', 'zoom-out');
+        break;
+      default :
+        slide.classList.add('pan-right', 'zoom-out');
     }
   });
 }
 
 function nextSlide() {
   currentSlideIndex = (currentSlideIndex + 1) % slides.length;
-  showSlide(currentSlideIndex);
+  displaySlide(currentSlideIndex);
 }
 
 function prevSlide() {
   currentSlideIndex = (currentSlideIndex - 1 + slides.length) % slides.length;
-  showSlide(currentSlideIndex);
+  displaySlide(currentSlideIndex);
 }
 
 function playSlideshow() {
+  const btnPlay = document.querySelector('.btnPlay') as HTMLElement;
+  const btnPause = document.querySelector('.btnPause') as HTMLElement;
+  btnPause.classList.add( 'displayed' );
+  btnPlay.classList.remove( 'displayed' );
   if (!intervalId) {
-    // TODO : this needs to be dynamic as read from the JSON file
     intervalId = Number( setInterval( nextSlide, durationSlide ) );
   }
 }
 
 function pauseSlideshow() {
+  const btnPlay = document.querySelector('.btnPlay') as HTMLElement;
+  const btnPause = document.querySelector('.btnPause') as HTMLElement;
+  btnPause.classList.remove( 'displayed' );
+  btnPlay.classList.add( 'displayed' );
   if (intervalId) {
     clearInterval(intervalId);
     intervalId = null;
@@ -87,13 +100,13 @@ function initializeControls() {
   const btnNext = document.querySelector('.btnNext') as HTMLElement;
   const btnPrev = document.querySelector('.btnPrev') as HTMLElement;
 
+  btnPrev.addEventListener('click', prevSlide);
   btnPlay.addEventListener('click', playSlideshow);
   btnPause.addEventListener('click', pauseSlideshow);
   btnNext.addEventListener('click', nextSlide);
-  btnPrev.addEventListener('click', prevSlide);
 
   slides = Array.from(document.querySelectorAll('.slide')) as HTMLElement[];
-  showSlide(currentSlideIndex);
+  displaySlide(currentSlideIndex);
 
   playSlideshow();
 }
@@ -107,6 +120,7 @@ async function initializePresentation() {
 
   const response = await fetch('preso_index.json');
   const data = await response.json();
+  presoData = data;
 
   data?.config?.title && ( document.title = data.config.title );
   data?.config?.durationSlide && ( durationSlide = data.config.durationSlide );
@@ -119,19 +133,23 @@ async function initializePresentation() {
   chrome.className = 'chrome';
   stage.appendChild(chrome);
 
-  ['btnPlay', 'btnPause', 'btnNext', 'btnPrev'].forEach((btnClass) => {
+  ['btnPrev', 'btnPlay', 'btnPause', 'btnNext' ].forEach((btnClass) => {
     const button = document.createElement('div');
     button.className = btnClass;
     chrome.appendChild(button);
   });
 
   const description = document.createElement('div');
-  description.className = 'description';
+  description.className = 'description displayed';
   stage.appendChild(description);
 
-  const toggleDescription = document.createElement('div');
-  toggleDescription.className = 'btnToggleDescription';
-  description.appendChild(toggleDescription);
+  const btnToggleDescription = document.createElement('div');
+  btnToggleDescription.className = 'btnToggleDescription';
+  stage.appendChild(btnToggleDescription);
+  btnToggleDescription.addEventListener('click', () => {
+    const descriptionDiv = document.querySelector('.description') as HTMLDivElement;
+    descriptionDiv.classList.toggle('displayed');
+  } );
 
   if (data.slides && Array.isArray(data.slides)) {
     const durationTransition = data.config?.durationTransition || '1s';
@@ -165,6 +183,8 @@ async function initializePresentation() {
       }
     });
   }
+
+  console.log( 'data :', data );
 }
 
 document.addEventListener('DOMContentLoaded', () => {

@@ -39,10 +39,11 @@ var currentSlideIndex = 0;
 var slides = [];
 var intervalId = null;
 var durationSlide = 5000;
+var presoData = null;
 function generateTransitionData(index) {
     var directions = ['left', 'right', 'up', 'down'];
-    var introDirection = directions[index % directions.length]; // Cycle through directions
-    var outroDirection = directions[(index + 2) % directions.length]; // Opposite direction
+    var introDirection = directions[index % directions.length];
+    var outroDirection = directions[(index + 2) % directions.length];
     return {
         introPan: introDirection,
         outroPan: outroDirection,
@@ -50,36 +51,47 @@ function generateTransitionData(index) {
         zoomLevel: Math.random() * 0.5 + 1 // Random zoom between 1x and 1.5x
     };
 }
-function showSlide(index) {
+function displaySlide(index) {
+    var _a, _b;
+    var descriptionDiv = document.querySelector('.description');
+    descriptionDiv.innerHTML = ((_b = (_a = presoData === null || presoData === void 0 ? void 0 : presoData.slides) === null || _a === void 0 ? void 0 : _a[index]) === null || _b === void 0 ? void 0 : _b.description) || '';
     slides.forEach(function (slide, i) {
         slide.classList.remove('displayed', 'pan-left', 'pan-right', 'pan-up', 'pan-down', 'zoom-in', 'zoom-out');
-        if (i === index) {
-            var transitionData = generateTransitionData(index);
-            slide.classList.add('displayed', "pan-".concat(transitionData.introPan), "zoom-in");
-        }
-        else if (i < index) {
-            slide.classList.add('pan-left');
-        }
-        else {
-            slide.classList.add('pan-right');
+        switch (true) {
+            case i === index:
+                var transitionData = generateTransitionData(index);
+                slide.classList.add('displayed', "pan-".concat(transitionData.introPan), "zoom-in");
+                break;
+            case i < index:
+                slide.classList.add('pan-left', 'zoom-out');
+                break;
+            default:
+                slide.classList.add('pan-right', 'zoom-out');
         }
     });
 }
 function nextSlide() {
     currentSlideIndex = (currentSlideIndex + 1) % slides.length;
-    showSlide(currentSlideIndex);
+    displaySlide(currentSlideIndex);
 }
 function prevSlide() {
     currentSlideIndex = (currentSlideIndex - 1 + slides.length) % slides.length;
-    showSlide(currentSlideIndex);
+    displaySlide(currentSlideIndex);
 }
 function playSlideshow() {
+    var btnPlay = document.querySelector('.btnPlay');
+    var btnPause = document.querySelector('.btnPause');
+    btnPause.classList.add('displayed');
+    btnPlay.classList.remove('displayed');
     if (!intervalId) {
-        // TODO : this needs to be dynamic as read from the JSON file
         intervalId = Number(setInterval(nextSlide, durationSlide));
     }
 }
 function pauseSlideshow() {
+    var btnPlay = document.querySelector('.btnPlay');
+    var btnPause = document.querySelector('.btnPause');
+    btnPause.classList.remove('displayed');
+    btnPlay.classList.add('displayed');
     if (intervalId) {
         clearInterval(intervalId);
         intervalId = null;
@@ -90,17 +102,17 @@ function initializeControls() {
     var btnPause = document.querySelector('.btnPause');
     var btnNext = document.querySelector('.btnNext');
     var btnPrev = document.querySelector('.btnPrev');
+    btnPrev.addEventListener('click', prevSlide);
     btnPlay.addEventListener('click', playSlideshow);
     btnPause.addEventListener('click', pauseSlideshow);
     btnNext.addEventListener('click', nextSlide);
-    btnPrev.addEventListener('click', prevSlide);
     slides = Array.from(document.querySelectorAll('.slide'));
-    showSlide(currentSlideIndex);
+    displaySlide(currentSlideIndex);
     playSlideshow();
 }
 function initializePresentation() {
     return __awaiter(this, void 0, void 0, function () {
-        var link, response, data, stage, chrome, description, toggleDescription, durationTransition_1;
+        var link, response, data, stage, chrome, description, btnToggleDescription, durationTransition_1;
         var _this = this;
         var _a, _b, _c;
         return __generator(this, function (_d) {
@@ -117,6 +129,7 @@ function initializePresentation() {
                     return [4 /*yield*/, response.json()];
                 case 2:
                     data = _d.sent();
+                    presoData = data;
                     ((_a = data === null || data === void 0 ? void 0 : data.config) === null || _a === void 0 ? void 0 : _a.title) && (document.title = data.config.title);
                     ((_b = data === null || data === void 0 ? void 0 : data.config) === null || _b === void 0 ? void 0 : _b.durationSlide) && (durationSlide = data.config.durationSlide);
                     stage = document.createElement('div');
@@ -125,17 +138,21 @@ function initializePresentation() {
                     chrome = document.createElement('div');
                     chrome.className = 'chrome';
                     stage.appendChild(chrome);
-                    ['btnPlay', 'btnPause', 'btnNext', 'btnPrev'].forEach(function (btnClass) {
+                    ['btnPrev', 'btnPlay', 'btnPause', 'btnNext'].forEach(function (btnClass) {
                         var button = document.createElement('div');
                         button.className = btnClass;
                         chrome.appendChild(button);
                     });
                     description = document.createElement('div');
-                    description.className = 'description';
+                    description.className = 'description displayed';
                     stage.appendChild(description);
-                    toggleDescription = document.createElement('div');
-                    toggleDescription.className = 'btnToggleDescription';
-                    description.appendChild(toggleDescription);
+                    btnToggleDescription = document.createElement('div');
+                    btnToggleDescription.className = 'btnToggleDescription';
+                    stage.appendChild(btnToggleDescription);
+                    btnToggleDescription.addEventListener('click', function () {
+                        var descriptionDiv = document.querySelector('.description');
+                        descriptionDiv.classList.toggle('displayed');
+                    });
                     if (data.slides && Array.isArray(data.slides)) {
                         durationTransition_1 = ((_c = data.config) === null || _c === void 0 ? void 0 : _c.durationTransition) || '1s';
                         data.slides.forEach(function (slide, index) {
@@ -174,6 +191,7 @@ function initializePresentation() {
                             }
                         });
                     }
+                    console.log('data :', data);
                     return [2 /*return*/];
             }
         });
