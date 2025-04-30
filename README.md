@@ -31,6 +31,10 @@ You can use this presentation app by simply including the built JS file in your 
 - The app loads `preso_index.json` automatically and builds the presentation UI.
 - Slides, background music, and other features are configured via the JSON file.
 
+## Caveats
+- The JS file mutates the page that it is hosted in to create the presentation.
+  - A google font is loaded dynamically
+
 ## Example
 
 See `public/index.html` and `preso_index.json` for a complete example setup.
