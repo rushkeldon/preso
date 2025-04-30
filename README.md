@@ -42,6 +42,10 @@ See `public/index.html` and `preso_index.json` for a complete example setup.
 - Keyboard navigation (arrow keys, space, enter)
 - Simple, minimal UI
 
+## TODO
+- turn on the description UX
+- add accreditation for images and music
+
 ## License
 
 MIT License
