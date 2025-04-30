@@ -4,17 +4,19 @@
         "description" : "A collection of photos and experiences from my trip to Japan in 2025.",
         "author" : "Keldon Rush",
         "durationView" : "5s",
-        "durationTransition" : "1s"
+        "durationTransition" : "2s"
     },
     "audio" : {
-        "config": {
-            "loop": true
-        },
         "playlist" : [
             {
+                "src": "snd/japan_001.mp3",
+                "title": "title",
+                "attribution": "attribution"
+            },
+            {
                 "src": "snd/japan_000.mp3",
-                "title": "First Song",
-                "attribution": "Music by Artist Name"
+                "title": "title",
+                "attribution": "attribution"
             }
         ]
     },
@@ -46,12 +48,6 @@
         {
             "type" : "img",
             "src" : "img/japan_004.jpg",
-            "title" : "title",
-            "description" : "description"
-        },
-        {
-            "type" : "img",
-            "src" : "img/japan_005.jpg",
             "title" : "title",
             "description" : "description"
         },
@@ -628,12 +624,6 @@
         {
             "type" : "img",
             "src" : "img/japan_100.jpg",
-            "title" : "title",
-            "description" : "description"
-        },
-        {
-            "type" : "img",
-            "src" : "img/japan_101.jpg",
             "title" : "title",
             "description" : "description"
         },
@@ -2596,6 +2586,12 @@
         {
             "type" : "img",
             "src" : "img/japan_430.jpg",
+            "title" : "title",
+            "description" : "description"
+        },
+        {
+            "type" : "img",
+            "src" : "img/the_end.jpg",
             "title" : "title",
             "description" : "description"
         }

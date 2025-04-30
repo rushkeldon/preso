@@ -1,23 +1,4 @@
 "use strict";
-/*
-type Vibrant = {
-  from(src: string): {
-    getPalette(): Promise<{
-      Vibrant?: { getHex(): string };
-      Muted?: { getHex(): string };
-      DarkVibrant?: { getHex(): string };
-      LightVibrant?: { getHex(): string };
-      DarkMuted?: { getHex(): string };
-      LightMuted?: { getHex(): string };
-      [key: string]: any;
-    }>;
-  };
-};
-
-declare interface Window {
-  Vibrant: Vibrant;
-}
-*/
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -60,11 +41,12 @@ var intervalId;
 var durationSlide = 5000;
 var presoData;
 var trashBin;
+var wakeLock = null;
 var slideBuffer = 3;
-var audioElement = null;
+var audioElement;
 var audioPlaylist = [];
-var audioConfig = {};
 var currentAudioIndex = 0;
+var hasAudioPlayedOnce = false;
 function generateTransitionData(index) {
     var directions = ['left', 'right', 'up', 'down'];
     var introDirection = directions[index % directions.length];
@@ -74,6 +56,47 @@ function generateTransitionData(index) {
         outroPan: outroDirection,
         zoomLevel: Math.random() * 0.5 + 1 // Random zoom between 1x and 1.5x
     };
+}
+function addAudio() {
+    if (presoData.audio && Array.isArray(presoData.audio.playlist) && presoData.audio.playlist.length > 0) {
+        audioPlaylist = presoData.audio.playlist;
+        audioElement = document.createElement('audio');
+        audioElement.src = audioPlaylist[0].src;
+        audioElement.preload = 'auto';
+        audioElement.style.display = 'none';
+        audioElement.volume = 0.1;
+        audioElement.muted = false;
+        audioElement.addEventListener('ended', function () {
+            currentAudioIndex = (currentAudioIndex + 1) % audioPlaylist.length;
+            audioElement.src = audioPlaylist[currentAudioIndex].src;
+            audioElement.play().catch(function () { });
+        });
+        document.body.appendChild(audioElement);
+    }
+}
+function getFonts() {
+    [
+        {
+            rel: 'preconnect',
+            href: "https://fonts.googleapis.com"
+        },
+        {
+            rel: 'preconnect',
+            href: 'https://fonts.gstatic.com',
+            crossorigin: ''
+        },
+        {
+            rel: 'stylesheet',
+            href: 'https://fonts.googleapis.com/css2?family=Noto+Music&display=swap'
+        }
+    ].forEach(function (linkInfo) {
+        var link = document.createElement('link');
+        Object.entries(linkInfo).forEach(function (_a) {
+            var key = _a[0], value = _a[1];
+            return value ? link[key] = value : link.setAttribute(key, '');
+        });
+        document.head.appendChild(link);
+    });
 }
 function displaySlide(index) {
     var _a, _b;
@@ -113,7 +136,36 @@ function prevSlide() {
     currentSlideIndex = (currentSlideIndex - 1 + slideDivs.length) % slideDivs.length;
     displaySlide(currentSlideIndex);
 }
+function requestWakeLock() {
+    return __awaiter(this, void 0, void 0, function () {
+        var err_1;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    _a.trys.push([0, 3, , 4]);
+                    if (!('wakeLock' in navigator)) return [3 /*break*/, 2];
+                    return [4 /*yield*/, navigator.wakeLock.request('screen')];
+                case 1:
+                    wakeLock = _a.sent();
+                    _a.label = 2;
+                case 2: return [3 /*break*/, 4];
+                case 3:
+                    err_1 = _a.sent();
+                    console.warn('Wake Lock not available:', err_1);
+                    return [3 /*break*/, 4];
+                case 4: return [2 /*return*/];
+            }
+        });
+    });
+}
+function releaseWakeLock() {
+    if (wakeLock) {
+        wakeLock.release();
+        wakeLock = null;
+    }
+}
 function playSlideshow() {
+    requestWakeLock().catch(function () { });
     var btnPlay = document.querySelector('.btnPlay');
     var btnPause = document.querySelector('.btnPause');
     btnPause.classList.add('displayed');
@@ -121,11 +173,13 @@ function playSlideshow() {
     if (!intervalId) {
         intervalId = Number(setInterval(nextSlide, durationSlide));
     }
-    if (audioElement && audioElement.paused) {
+    if (audioElement && !hasAudioPlayedOnce) {
+        hasAudioPlayedOnce = true;
         audioElement.play().catch(function () { });
     }
 }
 function pauseSlideshow() {
+    releaseWakeLock();
     var btnPlay = document.querySelector('.btnPlay');
     var btnPause = document.querySelector('.btnPause');
     btnPause.classList.remove('displayed');
@@ -134,11 +188,8 @@ function pauseSlideshow() {
         clearInterval(intervalId);
         intervalId = 0;
     }
-    if (audioElement && !audioElement.paused) {
-        audioElement.pause();
-    }
 }
-function initializeControls() {
+function main() {
     var btnPlay = document.querySelector('.btnPlay');
     var btnPause = document.querySelector('.btnPause');
     var btnNext = document.querySelector('.btnNext');
@@ -147,16 +198,39 @@ function initializeControls() {
     btnPlay.addEventListener('click', playSlideshow);
     btnPause.addEventListener('click', pauseSlideshow);
     btnNext.addEventListener('click', function () { return nextSlide(); });
+    // --- Key handling for slideshow controls ---
+    document.addEventListener('keydown', function (e) {
+        switch (e.key) {
+            case 'ArrowLeft':
+                prevSlide();
+                e.preventDefault();
+                break;
+            case 'ArrowRight':
+                nextSlide();
+                e.preventDefault();
+                break;
+            case ' ':
+            case 'Enter':
+                if (!intervalId) {
+                    playSlideshow();
+                }
+                else {
+                    pauseSlideshow();
+                }
+                e.preventDefault();
+                break;
+        }
+    });
     displaySlide(currentSlideIndex);
-    playSlideshow();
 }
-function initializePresentation() {
+function init() {
     return __awaiter(this, void 0, void 0, function () {
-        var link, response, data, stage, chrome, description, btnToggleDescription, durationTransition_1;
+        var link, response, data, stage, chrome, btn, description, btnToggleDescription, durationTransition_1;
         var _a, _b, _c;
         return __generator(this, function (_d) {
             switch (_d.label) {
                 case 0:
+                    getFonts();
                     link = document.createElement('link');
                     link.rel = 'stylesheet';
                     link.href = 'preso_styles.css';
@@ -170,18 +244,7 @@ function initializePresentation() {
                     presoData = data;
                     ((_a = data === null || data === void 0 ? void 0 : data.config) === null || _a === void 0 ? void 0 : _a.title) && (document.title = data.config.title);
                     ((_b = data === null || data === void 0 ? void 0 : data.config) === null || _b === void 0 ? void 0 : _b.durationSlide) && (durationSlide = data.config.durationSlide);
-                    // --- Audio setup ---
-                    if (data.audio && Array.isArray(data.audio.playlist) && data.audio.playlist.length > 0) {
-                        audioPlaylist = data.audio.playlist;
-                        audioConfig = data.audio.config || {};
-                        audioElement = document.createElement('audio');
-                        audioElement.src = audioPlaylist[0].src;
-                        audioElement.loop = !!audioConfig.loop;
-                        audioElement.preload = 'auto';
-                        audioElement.style.display = 'none';
-                        audioElement.volume = 0.1; // Set background music volume to 20%
-                        document.body.appendChild(audioElement);
-                    }
+                    addAudio();
                     stage = document.createElement('div');
                     stage.className = 'stage';
                     document.body.appendChild(stage);
@@ -189,13 +252,15 @@ function initializePresentation() {
                     chrome.className = 'chrome';
                     stage.appendChild(chrome);
                     ['btnPrev', 'btnPlay', 'btnPause', 'btnNext'].forEach(function (btnClass) {
-                        var button = document.createElement('div');
-                        button.className = btnClass;
-                        chrome.appendChild(button);
+                        btn = document.createElement('div');
+                        btn.className = "".concat(btnClass).concat(btnClass === 'btnPlay' ? ' displayed' : '');
+                        btn.tabIndex = 0;
+                        chrome.appendChild(btn);
                     });
                     ['btnMute', 'btnUnmute'].forEach(function (btnClass) {
-                        var btn = document.createElement('div');
-                        btn.className = btnClass;
+                        btn = document.createElement('div');
+                        btn.className = "".concat(btnClass).concat(btnClass === 'btnUnmute' ? ' displayed' : '');
+                        btn.tabIndex = 0;
                         stage.appendChild(btn);
                         btn.addEventListener('click', function () {
                             var _a, _b, _c, _d;
@@ -271,7 +336,7 @@ function loadSlideImage(index) {
         img.src = slide.src;
         img.alt = (_a = slide === null || slide === void 0 ? void 0 : slide.title) !== null && _a !== void 0 ? _a : '';
         img.onerror = function () {
-            console.log("Error loading image ".concat(img === null || img === void 0 ? void 0 : img.src, " - deleting slide with index ").concat(index));
+            console.warn("Error loading image ".concat(img === null || img === void 0 ? void 0 : img.src, " - deleting slide with index ").concat(index));
             presoData.slides.splice(index, 1);
             if (slideDiv.parentNode) {
                 slideDiv.parentNode.removeChild(slideDiv);
@@ -284,20 +349,6 @@ function loadSlideImage(index) {
                 displaySlide(currentSlideIndex);
             }
         };
-        /*
-              // consider bringing back the vibrant implementation later...
-              img.onload = async () => {
-                if( !img ) return;
-                try {
-                  const palette = await ( window.Vibrant as Vibrant ).from(img.src).getPalette();
-                  if (palette.Muted) {
-                    slideDiv.style.backgroundColor = palette.Muted.getHex();
-                  }
-                } catch (err) {
-                  console.error(`Error extracting colors for image ${img.src}:`, err);
-                }
-              };
-        */
         slideDiv.appendChild(img);
     }
 }
@@ -314,17 +365,5 @@ function unloadSlideImage(index) {
     }
 }
 document.addEventListener('DOMContentLoaded', function () {
-    /*
-      const vibrantScript = document.createElement('script');
-      vibrantScript.onload = () => initializePresentation().then(initializeControls);
-      vibrantScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/node-vibrant/3.1.6/vibrant.min.js';
-      vibrantScript.async = true;
-  
-      vibrantScript.onerror = () => {
-        console.error('Failed to load the Vibrant library.');
-      };
-  
-      document.head.appendChild(vibrantScript);
-    */
-    initializePresentation().then(initializeControls);
+    init().then(main);
 });
