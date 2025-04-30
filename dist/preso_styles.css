@@ -5,7 +5,8 @@ body {
   padding: 0;
   width: 100%;
   height: 100%;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: scroll;
   box-sizing: border-box;
   font-size: 16px;
 }
@@ -17,14 +18,14 @@ body {
 .stage {
   position: relative;
   width: 100vw;
-  height: 100vh;
+  height: calc(var(--vh, 1vh) * 100);
   overflow: hidden;
   background-color: #000;
 }
 .stage .slide {
   position: absolute;
   width: 100vw;
-  height: 100vh;
+  height: calc(var(--vh, 1vh) * 100);
   opacity: 0;
   transition: all 1s ease-in-out;
   will-change: transform, opacity;
@@ -33,7 +34,7 @@ body {
 }
 .stage .slide img {
   width: 100vw;
-  height: 100vh;
+  height: calc(var(--vh, 1vh) * 100);
   object-fit: contain;
 }
 .stage .slide.pan-left {
@@ -81,6 +82,7 @@ body {
   place-items: center;
   cursor: pointer;
   transition: background-color 0.25s;
+  font-family: "Noto Sans Symbols 2", sans-serif;
 }
 .stage .chrome div:hover {
   background-color: rgba(255, 255, 255, 0.7);
@@ -90,6 +92,8 @@ body {
   font-size: 20px;
   font-weight: 700;
   color: #000;
+  display: inline-block;
+  height: 30px;
 }
 .stage .chrome div.btnPlay {
   display: none;

@@ -88,6 +88,10 @@ function getFonts() {
         {
             rel: 'stylesheet',
             href: 'https://fonts.googleapis.com/css2?family=Noto+Music&display=swap'
+        },
+        {
+            rel: 'stylesheet',
+            href: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Symbols+2&display=swap'
         }
     ].forEach(function (linkInfo) {
         var link = document.createElement('link');
@@ -189,6 +193,10 @@ function pauseSlideshow() {
         intervalId = 0;
     }
 }
+function setVhUnit() {
+    var vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', "".concat(vh, "px"));
+}
 function main() {
     var btnPlay = document.querySelector('.btnPlay');
     var btnPause = document.querySelector('.btnPause');
@@ -223,6 +231,12 @@ function main() {
     });
     displaySlide(currentSlideIndex);
 }
+function setVhObserving() {
+    setVhUnit();
+    var observer = new ResizeObserver(function () { return setVhUnit(); });
+    if (document.body)
+        observer.observe(document.body);
+}
 function init() {
     return __awaiter(this, void 0, void 0, function () {
         var link, response, data, stage, chrome, btn, description, btnToggleDescription, durationTransition_1;
@@ -230,6 +244,7 @@ function init() {
         return __generator(this, function (_d) {
             switch (_d.label) {
                 case 0:
+                    setVhObserving();
                     getFonts();
                     link = document.createElement('link');
                     link.rel = 'stylesheet';

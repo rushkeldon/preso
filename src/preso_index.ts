@@ -93,6 +93,10 @@ function getFonts() {
     {
       rel : 'stylesheet',
       href : 'https://fonts.googleapis.com/css2?family=Noto+Music&display=swap'
+    },
+    {
+      rel : 'stylesheet',
+      href : 'https://fonts.googleapis.com/css2?family=Noto+Sans+Symbols+2&display=swap'
     }
   ].forEach( linkInfo => {
     const link = document.createElement( 'link' );
@@ -195,6 +199,11 @@ function pauseSlideshow() {
   }
 }
 
+function setVhUnit() {
+  const vh = window.innerHeight * 0.01;
+  document.documentElement.style.setProperty('--vh', `${vh}px`);
+}
+
 function main() {
   const btnPlay = document.querySelector( '.btnPlay' ) as HTMLDivElement;
   const btnPause = document.querySelector( '.btnPause' ) as HTMLDivElement;
@@ -232,7 +241,14 @@ function main() {
   displaySlide( currentSlideIndex );
 }
 
+function setVhObserving() { // iOS 100vh bug workaround
+  setVhUnit();
+  const observer = new ResizeObserver( () => setVhUnit() );
+  if ( document.body ) observer.observe( document.body );
+}
+
 async function init() {
+  setVhObserving();
   getFonts();
   const link = document.createElement( 'link' );
   link.rel = 'stylesheet';
