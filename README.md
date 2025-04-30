@@ -2,8 +2,10 @@
 
 A super simple JSON-driven presentation implementation.
 
-## Usage
+## Example
+[My Japan Trip 2025](https://spiral9.com/preso/japan_2025)
 
+## Usage
 You can use this presentation app by simply including the built JS file in your HTML page. See `public/index.html` for a working example.
 
 ```html
@@ -22,12 +24,10 @@ You can use this presentation app by simply including the built JS file in your 
 ```
 
 ## Requirements
-
 1. a `preso_index.json` file must be present in the same directory as your HTML file - it defines your slides, audio, and other presentation data.
 2. a `preso_styles.css` file must be linked in your HTML file.
 
 ## How it works
-
 - The app loads `preso_index.json` automatically and builds the presentation UI.
 - Slides, background music, and other features are configured via the JSON file.
 
@@ -36,11 +36,9 @@ You can use this presentation app by simply including the built JS file in your 
   - A google font is loaded dynamically
 
 ## Example
-
 See `public/index.html` and `preso_index.json` for a complete example setup.
 
 ## Features
-
 - JSON-driven slides
 - Optional background music (MP3 playlist that loops)
 - Keyboard navigation (arrow keys, space, enter)
@@ -51,5 +49,4 @@ See `public/index.html` and `preso_index.json` for a complete example setup.
 - add accreditation for images and music
 
 ## License
-
 MIT License
