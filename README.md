@@ -3,7 +3,7 @@
 A super simple JSON-driven presentation implementation.
 
 ## Example
-[My Japan Trip 2025](https://spiral9.com/preso/japan_2025)
+[My Japan Trip 2025](https://spiral9.com/presos/japan_2025)
 
 ## Usage
 You can use this presentation app by simply including the built JS file in your HTML page. See `public/index.html` for a working example.
