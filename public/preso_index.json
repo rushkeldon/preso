@@ -6,6 +6,18 @@
         "durationView" : "5s",
         "durationTransition" : "1s"
     },
+    "audio" : {
+        "config": {
+            "loop": true
+        },
+        "playlist" : [
+            {
+                "src": "snd/japan_000.mp3",
+                "title": "First Song",
+                "attribution": "Music by Artist Name"
+            }
+        ]
+    },
     "slides" : [
         {
             "type" : "img",

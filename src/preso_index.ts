@@ -1,4 +1,4 @@
-
+/*
 type Vibrant = {
   from(src: string): {
     getPalette(): Promise<{
@@ -16,7 +16,7 @@ type Vibrant = {
 declare interface Window {
   Vibrant: Vibrant;
 }
-/**/
+*/
 
 type Slide = {
   description : string;
@@ -53,6 +53,11 @@ let presoData : PresoData;
 let trashBin : HTMLDivElement;
 
 const slideBuffer = 3;
+
+let audioElement: HTMLAudioElement | null = null;
+let audioPlaylist: { src: string; title?: string; attribution?: string }[] = [];
+let audioConfig: { loop?: boolean } = {};
+let currentAudioIndex = 0;
 
 function generateTransitionData( index : number ) : SlideTransitionData {
   const directions = [ 'left', 'right', 'up', 'down' ];
@@ -123,6 +128,9 @@ function playSlideshow() {
   if( !intervalId ) {
     intervalId = Number( setInterval( nextSlide, durationSlide ) );
   }
+  if (audioElement && audioElement.paused) {
+    audioElement.play().catch(() => {});
+  }
 }
 
 function pauseSlideshow() {
@@ -134,13 +142,16 @@ function pauseSlideshow() {
     clearInterval( intervalId );
     intervalId = 0;
   }
+  if (audioElement && !audioElement.paused) {
+    audioElement.pause();
+  }
 }
 
 function initializeControls() {
-  const btnPlay = document.querySelector( '.btnPlay' ) as HTMLElement;
-  const btnPause = document.querySelector( '.btnPause' ) as HTMLElement;
-  const btnNext = document.querySelector( '.btnNext' ) as HTMLElement;
-  const btnPrev = document.querySelector( '.btnPrev' ) as HTMLElement;
+  const btnPlay = document.querySelector( '.btnPlay' ) as HTMLDivElement;
+  const btnPause = document.querySelector( '.btnPause' ) as HTMLDivElement;
+  const btnNext = document.querySelector( '.btnNext' ) as HTMLDivElement;
+  const btnPrev = document.querySelector( '.btnPrev' ) as HTMLDivElement;
 
   btnPrev.addEventListener( 'click', () => prevSlide() );
   btnPlay.addEventListener( 'click', playSlideshow );
@@ -165,6 +176,19 @@ async function initializePresentation() {
   data?.config?.title && (document.title = data.config.title);
   data?.config?.durationSlide && (durationSlide = data.config.durationSlide);
 
+  // --- Audio setup ---
+  if (data.audio && Array.isArray(data.audio.playlist) && data.audio.playlist.length > 0) {
+    audioPlaylist = data.audio.playlist;
+    audioConfig = data.audio.config || {};
+    audioElement = document.createElement('audio');
+    audioElement.src = audioPlaylist[0].src;
+    audioElement.loop = !!audioConfig.loop;
+    audioElement.preload = 'auto';
+    audioElement.style.display = 'none';
+    audioElement.volume = 0.1; // Set background music volume to 20%
+    document.body.appendChild(audioElement);
+  }
+
   const stage = document.createElement( 'div' );
   stage.className = 'stage';
   document.body.appendChild( stage );
@@ -178,6 +202,36 @@ async function initializePresentation() {
     button.className = btnClass;
     chrome.appendChild( button );
   } );
+
+  ['btnMute', 'btnUnmute'].forEach((btnClass) => {
+    const btn = document.createElement('div');
+    btn.className = btnClass;
+    stage.appendChild(btn);
+    btn.addEventListener('click', () => {
+      if (audioElement) {
+        if (audioElement.muted) {
+          audioElement.muted = false;
+          document.querySelector('.btnMute')?.classList.remove('displayed');
+          document.querySelector('.btnUnmute')?.classList.add('displayed');
+        } else {
+          audioElement.muted = true;
+          document.querySelector('.btnMute')?.classList.add('displayed');
+          document.querySelector('.btnUnmute')?.classList.remove('displayed');
+        }
+      }
+    });
+  });
+
+  // Set initial button state
+  document.addEventListener('DOMContentLoaded', () => {
+    if (audioElement && audioElement.muted) {
+      document.querySelector('.btnMute')?.classList.add('displayed');
+      document.querySelector('.btnUnmute')?.classList.remove('displayed');
+    } else {
+      document.querySelector('.btnMute')?.classList.remove('displayed');
+      document.querySelector('.btnUnmute')?.classList.add('displayed');
+    }
+  });
 
   const description = document.createElement( 'div' );
   description.className = 'description displayed';
@@ -225,19 +279,37 @@ function loadSlideImage( index : number ) {
     img.src = slide.src;
     img.alt = slide?.title ?? '';
 
-    // consider bringing back the vibrant implementation later...
-    img.onload = async () => {
-      if( !img ) return;
-      try {
-        const palette = await ( window.Vibrant as Vibrant ).from(img.src).getPalette();
-        if (palette.Muted) {
-          slideDiv.style.backgroundColor = palette.Muted.getHex();
-        }
-      } catch (err) {
-        console.error(`Error extracting colors for image ${img.src}:`, err);
+    img.onerror = () => {
+      console.log( `Error loading image ${img?.src} - deleting slide with index ${index}` );
+      presoData.slides.splice(index, 1);
+      if (slideDiv.parentNode) {
+        slideDiv.parentNode.removeChild(slideDiv);
+      }
+      slideDivs.splice(index, 1);
+
+      if (currentSlideIndex >= slideDivs.length) {
+        currentSlideIndex = Math.max(0, slideDivs.length - 1);
+      }
+
+      if (slideDivs.length > 0) {
+        displaySlide(currentSlideIndex);
       }
     };
-    /* */
+
+/*
+      // consider bringing back the vibrant implementation later...
+      img.onload = async () => {
+        if( !img ) return;
+        try {
+          const palette = await ( window.Vibrant as Vibrant ).from(img.src).getPalette();
+          if (palette.Muted) {
+            slideDiv.style.backgroundColor = palette.Muted.getHex();
+          }
+        } catch (err) {
+          console.error(`Error extracting colors for image ${img.src}:`, err);
+        }
+      };
+*/
     slideDiv.appendChild( img );
   }
 }
@@ -255,17 +327,18 @@ function unloadSlideImage( index : number ) {
 }
 
 document.addEventListener( 'DOMContentLoaded', () => {
+  /*
+    const vibrantScript = document.createElement('script');
+    vibrantScript.onload = () => initializePresentation().then(initializeControls);
+    vibrantScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/node-vibrant/3.1.6/vibrant.min.js';
+    vibrantScript.async = true;
 
-  const vibrantScript = document.createElement('script');
-  vibrantScript.onload = () => initializePresentation().then(initializeControls);
-  vibrantScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/node-vibrant/3.1.6/vibrant.min.js';
-  vibrantScript.async = true;
+    vibrantScript.onerror = () => {
+      console.error('Failed to load the Vibrant library.');
+    };
 
-  vibrantScript.onerror = () => {
-    console.error('Failed to load the Vibrant library.');
-  };
-
-  document.head.appendChild(vibrantScript);
-
-  /* initializePresentation().then( initializeControls ); */
+    document.head.appendChild(vibrantScript);
+  */
+     initializePresentation().then( initializeControls );
 } );
+

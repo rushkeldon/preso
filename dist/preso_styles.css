@@ -165,3 +165,33 @@ body {
   font-size: 24px;
   color: #000;
 }
+.stage .btnMute,
+.stage .btnUnmute {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 40px;
+  height: 40px;
+  background-color: rgba(255, 255, 255, 0.45);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  z-index: 20;
+  transition: background-color 0.25s;
+  font-size: 22px;
+  color: #000;
+}
+.stage .btnMute:hover,
+.stage .btnUnmute:hover {
+  background-color: rgba(255, 255, 255, 0.7);
+}
+.stage .btnMute:before {
+  content: '\1D11E';
+  font-family: "Bravura", "MusicalSymbols", serif, sans-serif;
+  font-size: 28px;
+  line-height: 1;
+}
+.stage .btnUnmute:before {
+  content: '\1F50A';
+}
