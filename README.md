@@ -12,7 +12,7 @@ You can use this presentation app by simply including the built JS file in your 
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>My Presentation</title>
+  <title>preso</title> <!-- title can be set in JSON -->
   <link rel="stylesheet" href="preso_styles.css">
 </head>
 <body>
