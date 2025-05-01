@@ -4,10 +4,20 @@ html, body {
   padding: 0;
   width: 100%;
   height: 100%;
-  overflow-x: hidden;
-  overflow-y: scroll;
   box-sizing: border-box;
   font-size: 16px;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  scrollbar-width: none; // Firefox
+  -ms-overflow-style: none; // IE/Edge
+  background: black;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+body {
+  overflow-y: scroll;
 }
 
 *,
@@ -16,14 +26,191 @@ html, body {
   box-sizing: inherit;
 }
 
+.chrome {
+  position: fixed;
+  bottom: 22px;
+  left: 0px;
+  right: 0px;
+  margin : 0 auto;
+  display: grid;
+  grid-auto-flow: column;
+  justify-content: space-evenly;
+  gap: 10px;
+  width: 50%;
+  z-index: 10;
+  height : 42px;
+
+  div {
+    width: 40px;
+    height: 40px;
+    background-color: rgba(255, 255, 255, 0.45);
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    transition: background-color 0.25s;
+    font-family: "Noto Sans Symbols 2", sans-serif;
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.7);
+    }
+    &:before {
+      content: '';
+      font-size: 20px;
+      font-weight: 700;
+      color: #000;
+      display: inline-block;
+      height: 30px;
+    }
+
+    &.btnPlay {
+      display: none;
+      &:before {
+        content: '\25B6';
+      }
+      &.displayed {
+        display: grid;
+      }
+    }
+    &.btnPause {
+      display: none;
+      &:before {
+        content: '\275A \275A';
+      }
+      &.displayed {
+        display: grid;
+      }
+    }
+    &.btnNext {
+      &:before {
+        content: '\25B6\007C';
+      }
+    }
+    &.btnPrev {
+      &:before {
+        content: '\007C\25C0';
+      }
+    }
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 1);
+    }
+  }
+}
+
+.btnToggleDescription {
+  font-family: sans-serif;
+  position: absolute;
+  z-index: 11;
+  bottom: 51px;
+  right: 13px;
+  width: 38px;
+  height: 38px;
+  background-color: rgba(255, 255, 255, 0.4);
+  border-radius: 50%;
+  transition: background-color 0.3s ease-in-out;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  display: none;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 1);
+  }
+  &:before {
+    content: '\2139';
+    font-weight: 700;
+    font-size: 24px;
+    color: #000;
+  }
+}
+
+.btnMute,
+.btnUnmute {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 40px;
+  height: 40px;
+  background-color: rgba(255,255,255,0.45);
+  border-radius: 50%;
+  display: none;
+  place-items: center;
+  cursor: pointer;
+  z-index: 20;
+  transition: background-color 0.25s;
+  color: #000;
+  font-family: "Noto Music", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 22px;
+
+  &:hover {
+    background-color: rgba(255,255,255,0.7);
+  }
+
+  &.displayed {
+    display: grid;
+  }
+}
+
+.btnUnmute {
+  &:before {
+    content: '\1D11E';
+    transform: scaleY(0.5);
+    display: block;
+  }
+}
+
+.btnMute {
+  &:before {
+    content: '\1D11E';
+    transform: scaleY(0.5);
+    display: block;
+  }
+
+  &:after {
+    content: '';
+    position: absolute;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 4px solid black;
+    top: 2px;
+    left: 2px;
+    pointer-events: none;
+    z-index: 1;
+    background-image: linear-gradient(
+      135deg,
+      transparent 48%,
+      rgba(0, 0, 0, 0.7) 48%,
+      rgba(0, 0, 0, 0.7) 52%,
+      transparent 52%
+    );
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100% 100%;
+  }
+}
+
+.scrollable {
+  width: 100vw;
+  height : calc( 100% + 20px );
+  pointer-events: none;
+  background: black;
+}
+
 .stage {
-  position: relative;
+  position: fixed;
+  left: 0;
+  top: 0;
   width: 100vw;
   height: calc(var(--vh, 1vh) * 100);
   overflow: hidden;
   background-color: #000;
+  pointer-events: none;
 
   .slide {
+    pointer-events: none;
     position: absolute;
     width: 100vw;
     height: calc(var(--vh, 1vh) * 100);
@@ -34,6 +221,7 @@ html, body {
     place-items: center;
 
     img {
+      pointer-events: none;
       width: 100vw;
       height: calc(var(--vh, 1vh) * 100);
       object-fit: contain;
@@ -69,77 +257,6 @@ html, body {
     }
   }
 
-  .chrome {
-    position: absolute;
-    bottom: 2px;
-    left: 0px;
-    right: 0px;
-    margin : 0 auto;
-    display: grid;
-    grid-auto-flow: column;
-    justify-content: space-evenly;
-    gap: 10px;
-    width: 50%;
-    z-index: 10;
-    height : 42px;
-
-    div {
-      width: 40px;
-      height: 40px;
-      background-color: rgba(255, 255, 255, 0.45);
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      cursor: pointer;
-      transition: background-color 0.25s;
-      font-family: "Noto Sans Symbols 2", sans-serif;
-      &:hover {
-        background-color: rgba(255, 255, 255, 0.7);
-      }
-      &:before {
-        content: '';
-        font-size: 20px;
-        font-weight: 700;
-        color: #000;
-        display: inline-block;
-        height: 30px;
-      }
-
-      &.btnPlay {
-        display: none;
-        &:before {
-          content: '\25B6';
-        }
-        &.displayed {
-          display: grid;
-        }
-      }
-      &.btnPause {
-        display: none;
-        &:before {
-          content: '\275A \275A';
-        }
-        &.displayed {
-          display: grid;
-        }
-      }
-      &.btnNext {
-        &:before {
-          content: '\25B6\007C';
-        }
-      }
-      &.btnPrev {
-        &:before {
-          content: '\007C\25C0';
-        }
-      }
-
-      &:hover {
-        background-color: rgba(255, 255, 255, 1);
-      }
-    }
-  }
-
   .description {
     font-family: sans-serif;
     position: absolute;
@@ -162,101 +279,5 @@ html, body {
       opacity: 1;
     }
   }
-
-  .btnToggleDescription {
-    font-family: sans-serif;
-    position: absolute;
-    z-index: 11;
-    bottom: 51px;
-    right: 13px;
-    width: 38px;
-    height: 38px;
-    background-color: rgba(255, 255, 255, 0.4);
-    border-radius: 50%;
-    transition: background-color 0.3s ease-in-out;
-    cursor: pointer;
-    display: grid;
-    place-items: center;
-    display: none;
-
-    &:hover {
-      background-color: rgba(255, 255, 255, 1);
-    }
-    &:before {
-      content: '\2139';
-      font-weight: 700;
-      font-size: 24px;
-      color: #000;
-    }
-  }
-
-  .btnMute,
-  .btnUnmute {
-    position: absolute;
-    top: 18px;
-    right: 18px;
-    width: 40px;
-    height: 40px;
-    background-color: rgba(255,255,255,0.45);
-    border-radius: 50%;
-    display: none;
-    place-items: center;
-    cursor: pointer;
-    z-index: 20;
-    transition: background-color 0.25s;
-    color: #000;
-    font-family: "Noto Music", sans-serif;
-    font-weight: 400;
-    font-style: normal;
-    font-size: 22px;
-
-    &:hover {
-      background-color: rgba(255,255,255,0.7);
-    }
-
-    &.displayed {
-      display: grid;
-    }
-  }
-
-  .btnUnmute {
-    &:before {
-      content: '\1D11E';
-      transform: scaleY(0.5);
-      display: block;
-    }
-  }
-
-  .btnMute {
-    &:before {
-      content: '\1D11E';
-      transform: scaleY(0.5);
-      display: block;
-    }
-
-    &:after {
-      content: '';
-      position: absolute;
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      border: 4px solid black;
-      top: 2px;
-      left: 2px;
-      pointer-events: none;
-      z-index: 1;
-      background-image: linear-gradient(
-        135deg,
-        transparent 48%,
-        rgba(0, 0, 0, 0.7) 48%,
-        rgba(0, 0, 0, 0.7) 52%,
-        transparent 52%
-      );
-      background-repeat: no-repeat;
-      background-position: center;
-      background-size: 100% 100%;
-    }
-  }
-
 }
 

@@ -5,24 +5,186 @@ body {
   padding: 0;
   width: 100%;
   height: 100%;
-  overflow-x: hidden;
-  overflow-y: scroll;
   box-sizing: border-box;
   font-size: 16px;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  background: black;
+}
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
+}
+body {
+  overflow-y: scroll;
 }
 *,
 *:before,
 *:after {
   box-sizing: inherit;
 }
+.chrome {
+  position: fixed;
+  bottom: 22px;
+  left: 0px;
+  right: 0px;
+  margin: 0 auto;
+  display: grid;
+  grid-auto-flow: column;
+  justify-content: space-evenly;
+  gap: 10px;
+  width: 50%;
+  z-index: 10;
+  height: 42px;
+}
+.chrome div {
+  width: 40px;
+  height: 40px;
+  background-color: rgba(255, 255, 255, 0.45);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: background-color 0.25s;
+  font-family: "Noto Sans Symbols 2", sans-serif;
+}
+.chrome div:hover {
+  background-color: rgba(255, 255, 255, 0.7);
+}
+.chrome div:before {
+  content: '';
+  font-size: 20px;
+  font-weight: 700;
+  color: #000;
+  display: inline-block;
+  height: 30px;
+}
+.chrome div.btnPlay {
+  display: none;
+}
+.chrome div.btnPlay:before {
+  content: '\25B6';
+}
+.chrome div.btnPlay.displayed {
+  display: grid;
+}
+.chrome div.btnPause {
+  display: none;
+}
+.chrome div.btnPause:before {
+  content: '\275A \275A';
+}
+.chrome div.btnPause.displayed {
+  display: grid;
+}
+.chrome div.btnNext:before {
+  content: '\25B6\007C';
+}
+.chrome div.btnPrev:before {
+  content: '\007C\25C0';
+}
+.chrome div:hover {
+  background-color: #ffffff;
+}
+.btnToggleDescription {
+  font-family: sans-serif;
+  position: absolute;
+  z-index: 11;
+  bottom: 51px;
+  right: 13px;
+  width: 38px;
+  height: 38px;
+  background-color: rgba(255, 255, 255, 0.4);
+  border-radius: 50%;
+  transition: background-color 0.3s ease-in-out;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  display: none;
+}
+.btnToggleDescription:hover {
+  background-color: #ffffff;
+}
+.btnToggleDescription:before {
+  content: '\2139';
+  font-weight: 700;
+  font-size: 24px;
+  color: #000;
+}
+.btnMute,
+.btnUnmute {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 40px;
+  height: 40px;
+  background-color: rgba(255, 255, 255, 0.45);
+  border-radius: 50%;
+  display: none;
+  place-items: center;
+  cursor: pointer;
+  z-index: 20;
+  transition: background-color 0.25s;
+  color: #000;
+  font-family: "Noto Music", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 22px;
+}
+.btnMute:hover,
+.btnUnmute:hover {
+  background-color: rgba(255, 255, 255, 0.7);
+}
+.btnMute.displayed,
+.btnUnmute.displayed {
+  display: grid;
+}
+.btnUnmute:before {
+  content: '\1D11E';
+  transform: scaleY(0.5);
+  display: block;
+}
+.btnMute:before {
+  content: '\1D11E';
+  transform: scaleY(0.5);
+  display: block;
+}
+.btnMute:after {
+  content: '';
+  position: absolute;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 4px solid black;
+  top: 2px;
+  left: 2px;
+  pointer-events: none;
+  z-index: 1;
+  background-image: linear-gradient(135deg, transparent 48%, rgba(0, 0, 0, 0.7) 48%, rgba(0, 0, 0, 0.7) 52%, transparent 52%);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+}
+.scrollable {
+  width: 100vw;
+  height: calc(100% + 20px);
+  pointer-events: none;
+  background: black;
+}
 .stage {
-  position: relative;
+  position: fixed;
+  left: 0;
+  top: 0;
   width: 100vw;
   height: calc(var(--vh, 1vh) * 100);
   overflow: hidden;
   background-color: #000;
+  pointer-events: none;
 }
 .stage .slide {
+  pointer-events: none;
   position: absolute;
   width: 100vw;
   height: calc(var(--vh, 1vh) * 100);
@@ -33,6 +195,7 @@ body {
   place-items: center;
 }
 .stage .slide img {
+  pointer-events: none;
   width: 100vw;
   height: calc(var(--vh, 1vh) * 100);
   object-fit: contain;
@@ -59,69 +222,6 @@ body {
   transform: translateX(0) scale(1);
   opacity: 1;
 }
-.stage .chrome {
-  position: absolute;
-  bottom: 2px;
-  left: 0px;
-  right: 0px;
-  margin: 0 auto;
-  display: grid;
-  grid-auto-flow: column;
-  justify-content: space-evenly;
-  gap: 10px;
-  width: 50%;
-  z-index: 10;
-  height: 42px;
-}
-.stage .chrome div {
-  width: 40px;
-  height: 40px;
-  background-color: rgba(255, 255, 255, 0.45);
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  cursor: pointer;
-  transition: background-color 0.25s;
-  font-family: "Noto Sans Symbols 2", sans-serif;
-}
-.stage .chrome div:hover {
-  background-color: rgba(255, 255, 255, 0.7);
-}
-.stage .chrome div:before {
-  content: '';
-  font-size: 20px;
-  font-weight: 700;
-  color: #000;
-  display: inline-block;
-  height: 30px;
-}
-.stage .chrome div.btnPlay {
-  display: none;
-}
-.stage .chrome div.btnPlay:before {
-  content: '\25B6';
-}
-.stage .chrome div.btnPlay.displayed {
-  display: grid;
-}
-.stage .chrome div.btnPause {
-  display: none;
-}
-.stage .chrome div.btnPause:before {
-  content: '\275A \275A';
-}
-.stage .chrome div.btnPause.displayed {
-  display: grid;
-}
-.stage .chrome div.btnNext:before {
-  content: '\25B6\007C';
-}
-.stage .chrome div.btnPrev:before {
-  content: '\007C\25C0';
-}
-.stage .chrome div:hover {
-  background-color: #ffffff;
-}
 .stage .description {
   font-family: sans-serif;
   position: absolute;
@@ -143,83 +243,4 @@ body {
 }
 .stage .description.displayed {
   opacity: 1;
-}
-.stage .btnToggleDescription {
-  font-family: sans-serif;
-  position: absolute;
-  z-index: 11;
-  bottom: 51px;
-  right: 13px;
-  width: 38px;
-  height: 38px;
-  background-color: rgba(255, 255, 255, 0.4);
-  border-radius: 50%;
-  transition: background-color 0.3s ease-in-out;
-  cursor: pointer;
-  display: grid;
-  place-items: center;
-  display: none;
-}
-.stage .btnToggleDescription:hover {
-  background-color: #ffffff;
-}
-.stage .btnToggleDescription:before {
-  content: '\2139';
-  font-weight: 700;
-  font-size: 24px;
-  color: #000;
-}
-.stage .btnMute,
-.stage .btnUnmute {
-  position: absolute;
-  top: 18px;
-  right: 18px;
-  width: 40px;
-  height: 40px;
-  background-color: rgba(255, 255, 255, 0.45);
-  border-radius: 50%;
-  display: none;
-  place-items: center;
-  cursor: pointer;
-  z-index: 20;
-  transition: background-color 0.25s;
-  color: #000;
-  font-family: "Noto Music", sans-serif;
-  font-weight: 400;
-  font-style: normal;
-  font-size: 22px;
-}
-.stage .btnMute:hover,
-.stage .btnUnmute:hover {
-  background-color: rgba(255, 255, 255, 0.7);
-}
-.stage .btnMute.displayed,
-.stage .btnUnmute.displayed {
-  display: grid;
-}
-.stage .btnUnmute:before {
-  content: '\1D11E';
-  transform: scaleY(0.5);
-  display: block;
-}
-.stage .btnMute:before {
-  content: '\1D11E';
-  transform: scaleY(0.5);
-  display: block;
-}
-.stage .btnMute:after {
-  content: '';
-  position: absolute;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: 4px solid black;
-  top: 2px;
-  left: 2px;
-  pointer-events: none;
-  z-index: 1;
-  background-image: linear-gradient(135deg, transparent 48%, rgba(0, 0, 0, 0.7) 48%, rgba(0, 0, 0, 0.7) 52%, transparent 52%);
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 100% 100%;
 }

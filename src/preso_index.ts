@@ -200,6 +200,7 @@ function pauseSlideshow() {
 }
 
 function setVhUnit() {
+  console.log( 'setVhUnit called.' );
   const vh = window.innerHeight * 0.01;
   document.documentElement.style.setProperty('--vh', `${vh}px`);
 }
@@ -241,14 +242,23 @@ function main() {
   displaySlide( currentSlideIndex );
 }
 
-function setVhObserving() { // iOS 100vh bug workaround
+function startVhObserving() { // iOS 100vh bug workaround
   setVhUnit();
   const observer = new ResizeObserver( () => setVhUnit() );
   if ( document.body ) observer.observe( document.body );
 }
 
 async function init() {
-  setVhObserving();
+  const scrollable = document.createElement( 'div' );
+  scrollable.className = 'scrollable';
+  document.body.appendChild( scrollable );
+
+  startVhObserving();
+
+  document.body.addEventListener( 'scroll', ( e ) => {
+    console.log( 'body scrolling' );
+  } );
+
   getFonts();
   const link = document.createElement( 'link' );
   link.rel = 'stylesheet';
@@ -270,7 +280,7 @@ async function init() {
 
   const chrome = document.createElement( 'div' );
   chrome.className = 'chrome';
-  stage.appendChild( chrome );
+  document.body.appendChild( chrome );
 
   let btn : HTMLDivElement;
 
@@ -285,7 +295,7 @@ async function init() {
     btn = document.createElement( 'div' );
     btn.className = `${btnClass}${ btnClass === 'btnUnmute' ? ' displayed' : '' }`;
     btn.tabIndex = 0;
-    stage.appendChild( btn );
+    document.body.appendChild( btn );
     btn.addEventListener( 'click', () => {
       if( audioElement ) {
         if( audioElement.muted ) {
@@ -301,16 +311,13 @@ async function init() {
     } );
   } );
 
-  // Set initial button state
-  document.addEventListener( 'DOMContentLoaded', () => {
-    if( audioElement && audioElement.muted ) {
-      document.querySelector( '.btnMute' )?.classList.add( 'displayed' );
-      document.querySelector( '.btnUnmute' )?.classList.remove( 'displayed' );
-    } else {
-      document.querySelector( '.btnMute' )?.classList.remove( 'displayed' );
-      document.querySelector( '.btnUnmute' )?.classList.add( 'displayed' );
-    }
-  } );
+  if( audioElement && audioElement.muted ) {
+    document.querySelector( '.btnMute' )?.classList.add( 'displayed' );
+    document.querySelector( '.btnUnmute' )?.classList.remove( 'displayed' );
+  } else {
+    document.querySelector( '.btnMute' )?.classList.remove( 'displayed' );
+    document.querySelector( '.btnUnmute' )?.classList.add( 'displayed' );
+  }
 
   const description = document.createElement( 'div' );
   description.className = 'description displayed';

@@ -194,6 +194,7 @@ function pauseSlideshow() {
     }
 }
 function setVhUnit() {
+    console.log('setVhUnit called.');
     var vh = window.innerHeight * 0.01;
     document.documentElement.style.setProperty('--vh', "".concat(vh, "px"));
 }
@@ -231,7 +232,7 @@ function main() {
     });
     displaySlide(currentSlideIndex);
 }
-function setVhObserving() {
+function startVhObserving() {
     setVhUnit();
     var observer = new ResizeObserver(function () { return setVhUnit(); });
     if (document.body)
@@ -239,12 +240,18 @@ function setVhObserving() {
 }
 function init() {
     return __awaiter(this, void 0, void 0, function () {
-        var link, response, data, stage, chrome, btn, description, btnToggleDescription, durationTransition_1;
-        var _a, _b, _c;
-        return __generator(this, function (_d) {
-            switch (_d.label) {
+        var scrollable, link, response, data, stage, chrome, btn, description, btnToggleDescription, durationTransition_1;
+        var _a, _b, _c, _d, _e, _f, _g;
+        return __generator(this, function (_h) {
+            switch (_h.label) {
                 case 0:
-                    setVhObserving();
+                    scrollable = document.createElement('div');
+                    scrollable.className = 'scrollable';
+                    document.body.appendChild(scrollable);
+                    startVhObserving();
+                    document.body.addEventListener('scroll', function (e) {
+                        console.log('body scrolling');
+                    });
                     getFonts();
                     link = document.createElement('link');
                     link.rel = 'stylesheet';
@@ -252,10 +259,10 @@ function init() {
                     document.head.appendChild(link);
                     return [4 /*yield*/, fetch('preso_index.json')];
                 case 1:
-                    response = _d.sent();
+                    response = _h.sent();
                     return [4 /*yield*/, response.json()];
                 case 2:
-                    data = _d.sent();
+                    data = _h.sent();
                     presoData = data;
                     ((_a = data === null || data === void 0 ? void 0 : data.config) === null || _a === void 0 ? void 0 : _a.title) && (document.title = data.config.title);
                     ((_b = data === null || data === void 0 ? void 0 : data.config) === null || _b === void 0 ? void 0 : _b.durationSlide) && (durationSlide = data.config.durationSlide);
@@ -265,7 +272,7 @@ function init() {
                     document.body.appendChild(stage);
                     chrome = document.createElement('div');
                     chrome.className = 'chrome';
-                    stage.appendChild(chrome);
+                    document.body.appendChild(chrome);
                     ['btnPrev', 'btnPlay', 'btnPause', 'btnNext'].forEach(function (btnClass) {
                         btn = document.createElement('div');
                         btn.className = "".concat(btnClass).concat(btnClass === 'btnPlay' ? ' displayed' : '');
@@ -276,7 +283,7 @@ function init() {
                         btn = document.createElement('div');
                         btn.className = "".concat(btnClass).concat(btnClass === 'btnUnmute' ? ' displayed' : '');
                         btn.tabIndex = 0;
-                        stage.appendChild(btn);
+                        document.body.appendChild(btn);
                         btn.addEventListener('click', function () {
                             var _a, _b, _c, _d;
                             if (audioElement) {
@@ -293,18 +300,14 @@ function init() {
                             }
                         });
                     });
-                    // Set initial button state
-                    document.addEventListener('DOMContentLoaded', function () {
-                        var _a, _b, _c, _d;
-                        if (audioElement && audioElement.muted) {
-                            (_a = document.querySelector('.btnMute')) === null || _a === void 0 ? void 0 : _a.classList.add('displayed');
-                            (_b = document.querySelector('.btnUnmute')) === null || _b === void 0 ? void 0 : _b.classList.remove('displayed');
-                        }
-                        else {
-                            (_c = document.querySelector('.btnMute')) === null || _c === void 0 ? void 0 : _c.classList.remove('displayed');
-                            (_d = document.querySelector('.btnUnmute')) === null || _d === void 0 ? void 0 : _d.classList.add('displayed');
-                        }
-                    });
+                    if (audioElement && audioElement.muted) {
+                        (_c = document.querySelector('.btnMute')) === null || _c === void 0 ? void 0 : _c.classList.add('displayed');
+                        (_d = document.querySelector('.btnUnmute')) === null || _d === void 0 ? void 0 : _d.classList.remove('displayed');
+                    }
+                    else {
+                        (_e = document.querySelector('.btnMute')) === null || _e === void 0 ? void 0 : _e.classList.remove('displayed');
+                        (_f = document.querySelector('.btnUnmute')) === null || _f === void 0 ? void 0 : _f.classList.add('displayed');
+                    }
                     description = document.createElement('div');
                     description.className = 'description displayed';
                     stage.appendChild(description);
@@ -316,7 +319,7 @@ function init() {
                         descriptionDiv.classList.toggle('displayed');
                     });
                     if (data.slides && Array.isArray(data.slides)) {
-                        durationTransition_1 = ((_c = data.config) === null || _c === void 0 ? void 0 : _c.durationTransition) || '1s';
+                        durationTransition_1 = ((_g = data.config) === null || _g === void 0 ? void 0 : _g.durationTransition) || '1s';
                         data.slides.forEach(function (slide, index) {
                             var transitionData = generateTransitionData(index);
                             Object.assign(slide, transitionData);
