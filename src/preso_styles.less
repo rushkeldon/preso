@@ -48,51 +48,72 @@ body {
     display: grid;
     place-items: center;
     cursor: pointer;
-    transition: background-color 0.25s;
-    font-family: "Noto Sans Symbols 2", sans-serif;
-    &:hover {
-      background-color: rgba(255, 255, 255, 0.7);
+    transition: all 0.25s;
+    svg {
+      width: 58%;
+      height: 58%;
     }
-    &:before {
-      content: '';
-      font-size: 20px;
-      font-weight: 700;
-      color: #000;
-      display: inline-block;
-      height: 30px;
+    &:hover {
+      transform-origin: center;
+      transform: scale(1.1);
     }
 
     &.btnPlay {
       display: none;
-      &:before {
-        content: '\25B6';
+      background: rgba( 255, 255, 255, 0.4);
+      svg {
+        fill: rgba(0, 0, 0, 0.8);
       }
       &.displayed {
         display: grid;
+      }
+      &:hover {
+        background: rgba( 255, 255, 255, 1);
+        svg {
+          fill: rgba(0, 0, 0, 1);
+        }
       }
     }
     &.btnPause {
       display: none;
-      &:before {
-        content: '\275A \275A';
+      svg {
+        fill: rgba(0, 0, 0, 0.8);
       }
       &.displayed {
         display: grid;
       }
+      &:hover {
+        background: rgba( 255, 255, 255, 1);
+        svg {
+          fill: rgba(0, 0, 0, 1);
+        }
+      }
     }
     &.btnNext {
-      &:before {
-        content: '\25B6\007C';
+      background : rgba( 0, 0, 0, 0 );
+      transform: scaleX(-1);
+      svg {
+        fill: rgba(255, 255, 255, 0.7);
+      }
+      &:hover {
+        transform : scaleX(-1) scale(1.1);
+        background : rgba( 0, 0, 0, 1 );
+        svg {
+          fill: rgba(255, 255, 255, 1);
+        }
       }
     }
     &.btnPrev {
-      &:before {
-        content: '\007C\25C0';
+      background : rgba( 0, 0, 0, 0 );
+      svg {
+        fill: rgba(255, 255, 255, 0.7);
       }
-    }
-
-    &:hover {
-      background-color: rgba(255, 255, 255, 1);
+      &:hover {
+        background : rgba( 0, 0, 0, 1 );
+        svg {
+          fill: rgba(255, 255, 255, 1);
+        }
+      }
     }
   }
 }
@@ -137,15 +158,22 @@ body {
   place-items: center;
   cursor: pointer;
   z-index: 20;
-  transition: background-color 0.25s;
+  transition: all 0.25s;
   color: #000;
-  font-family: "Noto Music", sans-serif;
-  font-weight: 400;
-  font-style: normal;
-  font-size: 22px;
+
+  svg {
+    width: 70%;
+    height: 70%;
+    fill: rgba(0, 0, 0, 0.8);
+  }
 
   &:hover {
-    background-color: rgba(255,255,255,0.7);
+    background-color: rgba(255,255,255,1);
+    transform-origin: center;
+    transform: scale(1.1);
+    svg {
+      fill: rgba(0, 0, 0, 1);
+    }
   }
 
   &.displayed {
@@ -153,21 +181,7 @@ body {
   }
 }
 
-.btnUnmute {
-  &:before {
-    content: '\1D11E';
-    transform: scaleY(0.5);
-    display: block;
-  }
-}
-
 .btnMute {
-  &:before {
-    content: '\1D11E';
-    transform: scaleY(0.5);
-    display: block;
-  }
-
   &:after {
     content: '';
     position: absolute;

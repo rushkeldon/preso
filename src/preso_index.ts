@@ -79,6 +79,7 @@ function addAudio() {
   }
 }
 
+/*
 function getFonts() {
   [
     {
@@ -104,6 +105,7 @@ function getFonts() {
     document.head.appendChild( link );
   } );
 }
+*/
 
 function displaySlide( index : number ) {
   const descriptionDiv = document.querySelector( '.description' ) as HTMLDivElement;
@@ -259,7 +261,7 @@ async function init() {
     console.log( 'body scrolling' );
   } );
 
-  getFonts();
+  // getFonts();
   const link = document.createElement( 'link' );
   link.rel = 'stylesheet';
   link.href = 'preso_styles.css';
@@ -288,12 +290,28 @@ async function init() {
     btn = document.createElement( 'div' );
     btn.className = `${btnClass}${btnClass === 'btnPlay' ? ' displayed' : ''}`;
     btn.tabIndex = 0;
+    switch( btnClass ) {
+      case 'btnPlay' :
+        btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M3 1.713a.7.7 0 0 1 1.05-.607l10.89 6.288a.7.7 0 0 1 0 1.212L4.05 14.894A.7.7 0 0 1 3 14.288V1.713Z"/></svg>';
+        break;
+      case 'btnPause' :
+        btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M2.7 1a.7.7 0 0 0-.7.7v12.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V1.7a.7.7 0 0 0-.7-.7H2.7Zm8 0a.7.7 0 0 0-.7.7v12.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V1.7a.7.7 0 0 0-.7-.7h-2.6Z"/></svg>';
+        break;
+      case 'btnPrev' :
+      case 'btnNext' :
+        btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M3.3 1a.7.7 0 0 1 .7.7v5.15l9.95-5.744a.7.7 0 0 1 1.05.606v12.575a.7.7 0 0 1-1.05.607L4 9.149V14.3a.7.7 0 0 1-.7.7H1.7a.7.7 0 0 1-.7-.7V1.7a.7.7 0 0 1 .7-.7s1.6 0 1.6 0Z"/></svg>';
+        break;
+    }
+
     chrome.appendChild( btn );
   } );
 
   [ 'btnMute', 'btnUnmute' ].forEach( ( btnClass ) => {
     btn = document.createElement( 'div' );
     btn.className = `${btnClass}${ btnClass === 'btnUnmute' ? ' displayed' : '' }`;
+
+    btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="m7.201 1.124-.154.015.16 1.899c.087 1.044.185 2.208.215 2.585.079.902.362 4.292.404 4.829.036.417.036.42-.022.41-.418-.09-.49-.098-.799-.086-1.37.053-2.995 1-3.614 2.104-.171.307-.224.484-.224.762 0 .38.137.727.364.924.26.225.616.332 1.106.332 1.617-.002 3.623-1.309 3.979-2.593.053-.185.05-.377-.014-1.149a504.94 504.94 0 0 1-.21-2.698c-.233-2.977-.26-3.34-.297-3.792a3.058 3.058 0 0 1-.017-.384c.03-.025.336.072.572.182.574.272 1.835 1.087 2.168 1.404.297.28.493.637.606 1.102.072.297.064.914-.017 1.261-.166.7-.443 1.214-1.029 1.894-.131.155-.249.297-.257.314-.006.018.022.065.064.105l.079.073.215-.1c.216-.1.53-.33.732-.537.756-.78 1.137-1.981 1.003-3.173-.073-.652-.267-1.216-.583-1.693-.219-.333-.821-.975-2.096-2.231C8.417 1.78 8.205 1.55 7.98 1.217l-.076-.115-.274.005c-.152.002-.345.01-.429.017Z"/></svg>';
+
     btn.tabIndex = 0;
     document.body.appendChild( btn );
     btn.addEventListener( 'click', () => {
