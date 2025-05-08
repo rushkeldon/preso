@@ -42,7 +42,7 @@ body {
 .chrome div {
   width: 40px;
   height: 40px;
-  background-color: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.4);
   border-radius: 50%;
   display: grid;
   place-items: center;
@@ -52,17 +52,18 @@ body {
 .chrome div svg {
   width: 58%;
   height: 58%;
+  fill: rgba(0, 0, 0, 0.8);
 }
 .chrome div:hover {
   transform-origin: center;
   transform: scale(1.1);
+  background: #ffffff;
+}
+.chrome div:hover svg {
+  fill: #000000;
 }
 .chrome div.btnPlay {
   display: none;
-  background: rgba(255, 255, 255, 0.4);
-}
-.chrome div.btnPlay svg {
-  fill: rgba(0, 0, 0, 0.8);
 }
 .chrome div.btnPlay.displayed {
   display: grid;
@@ -89,30 +90,10 @@ body {
   fill: #000000;
 }
 .chrome div.btnNext {
-  background: rgba(0, 0, 0, 0);
   transform: scaleX(-1);
-}
-.chrome div.btnNext svg {
-  fill: rgba(255, 255, 255, 0.7);
 }
 .chrome div.btnNext:hover {
   transform: scaleX(-1) scale(1.1);
-  background: #000000;
-}
-.chrome div.btnNext:hover svg {
-  fill: #ffffff;
-}
-.chrome div.btnPrev {
-  background: rgba(0, 0, 0, 0);
-}
-.chrome div.btnPrev svg {
-  fill: rgba(255, 255, 255, 0.7);
-}
-.chrome div.btnPrev:hover {
-  background: #000000;
-}
-.chrome div.btnPrev:hover svg {
-  fill: #ffffff;
 }
 .btnToggleDescription {
   font-family: sans-serif;

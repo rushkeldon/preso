@@ -43,7 +43,7 @@ body {
   div {
     width: 40px;
     height: 40px;
-    background-color: rgba(255, 255, 255, 0.45);
+    background: rgba( 255, 255, 255, 0.4);
     border-radius: 50%;
     display: grid;
     place-items: center;
@@ -52,18 +52,19 @@ body {
     svg {
       width: 58%;
       height: 58%;
+      fill: rgba(0, 0, 0, 0.8);
     }
     &:hover {
       transform-origin: center;
       transform: scale(1.1);
+      background: rgba( 255, 255, 255, 1);
+      svg {
+        fill: rgba(0, 0, 0, 1);
+      }
     }
 
     &.btnPlay {
       display: none;
-      background: rgba( 255, 255, 255, 0.4);
-      svg {
-        fill: rgba(0, 0, 0, 0.8);
-      }
       &.displayed {
         display: grid;
       }
@@ -90,29 +91,9 @@ body {
       }
     }
     &.btnNext {
-      background : rgba( 0, 0, 0, 0 );
       transform: scaleX(-1);
-      svg {
-        fill: rgba(255, 255, 255, 0.7);
-      }
       &:hover {
         transform : scaleX(-1) scale(1.1);
-        background : rgba( 0, 0, 0, 1 );
-        svg {
-          fill: rgba(255, 255, 255, 1);
-        }
-      }
-    }
-    &.btnPrev {
-      background : rgba( 0, 0, 0, 0 );
-      svg {
-        fill: rgba(255, 255, 255, 0.7);
-      }
-      &:hover {
-        background : rgba( 0, 0, 0, 1 );
-        svg {
-          fill: rgba(255, 255, 255, 1);
-        }
       }
     }
   }
